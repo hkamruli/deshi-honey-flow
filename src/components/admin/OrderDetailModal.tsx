@@ -238,17 +238,17 @@ export const generateInvoiceHTML = (order: OrderRow) => {
           <tr class="subtotal-row" style="border-top:2px dashed #e5e7eb">
             <td colspan="4" style="text-align:left; font-weight:600; color:#6b7280; font-size:11px; padding-top:12px">ছাড়সমূহ:</td>
           </tr>
-          ${order.delivery_charge === 0 ? `<tr class="subtotal-row">
+          <tr class="subtotal-row">
             <td colspan="3" style="text-align:right; color:#059669">🚚 ফ্রি ডেলিভারি</td>
             <td style="text-align:right; color:#059669; font-weight:600">-৳150</td>
-          </tr>` : ''}
+          </tr>
           <tr class="subtotal-row">
             <td colspan="3" style="text-align:right; color:#059669">🎁 ফ্রি হানি ডিপার</td>
             <td style="text-align:right; color:#059669; font-weight:600">-৳80</td>
           </tr>
           <tr class="subtotal-row" style="background:#ecfdf5">
             <td colspan="3" style="text-align:right; color:#059669; font-weight:700">💰 মোট সাশ্রয়</td>
-            <td style="text-align:right; color:#059669; font-weight:700">-৳${((order.delivery_charge === 0 ? 150 : 0) + 80).toLocaleString()}</td>
+            <td style="text-align:right; color:#059669; font-weight:700">-৳${(150 + 80).toLocaleString()}</td>
           </tr>
           <tr class="total-row">
             <td colspan="3" style="text-align:right">সর্বমোট পরিশোধযোগ্য</td>
@@ -345,19 +345,17 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
             <div className="border-t pt-2 mt-1">
               <p className="text-xs text-muted-foreground mb-1">ছাড়সমূহ:</p>
             </div>
-            {order.delivery_charge === 0 && (
-              <div className="flex justify-between text-sm text-secondary">
-                <span>🚚 ফ্রি ডেলিভারি</span>
-                <span className="font-bold">-৳150</span>
-              </div>
-            )}
+            <div className="flex justify-between text-sm text-secondary">
+              <span>🚚 ফ্রি ডেলিভারি</span>
+              <span className="font-bold">-৳150</span>
+            </div>
             <div className="flex justify-between text-sm text-secondary">
               <span>🎁 ফ্রি হানি ডিপার</span>
               <span className="font-bold">-৳80</span>
             </div>
             <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
               <span>💰 মোট সাশ্রয়</span>
-              <span className="font-bold">৳{((order.delivery_charge === 0 ? 150 : 0) + 80).toLocaleString()}</span>
+              <span className="font-bold">৳{(150 + 80).toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm font-bold border-t pt-2 mt-1">
               <span>সর্বমোট পরিশোধযোগ্য</span>
