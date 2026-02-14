@@ -24,21 +24,27 @@ const STATUS_COLORS: Record<string, string> = {
 
 const PAYMENT_LABELS: Record<string, string> = {
   cod: "ক্যাশ অন ডেলিভারি (COD)",
-  mfs: "মোবাইল ব্যাংকিং (bKash/Nagad)",
-  card: "কার্ড পেমেন্ট (Visa/Master)",
-  bank: "ব্যাংক ট্রান্সফার",
+  mfs: "মোবাইল ব্যাংকিং (নগদ/বিকাশ/রকেট)",
 };
 
 const PAYMENT_LABELS_EN: Record<string, string> = {
   cod: "Cash on Delivery (COD)",
-  mfs: "Mobile Banking (bKash/Nagad)",
-  card: "Card Payment (Visa/Master)",
-  bank: "Bank Transfer",
+  mfs: "Mobile Banking (Nagad/bKash/Rocket)",
 };
 
-const generateInvoiceHTML = (order: OrderRow) => {
+const STATUS_LABELS_EN: Record<string, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  processing: "Processing",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
+
+export const generateInvoiceHTML = (order: OrderRow) => {
   const paymentLabel = PAYMENT_LABELS[order.payment_method || "cod"] || "ক্যাশ অন ডেলিভারি (COD)";
   const paymentLabelEn = PAYMENT_LABELS_EN[order.payment_method || "cod"] || "Cash on Delivery (COD)";
+  const statusEn = STATUS_LABELS_EN[order.status] || order.status;
   
   return `
 <!DOCTYPE html>
@@ -47,46 +53,128 @@ const generateInvoiceHTML = (order: OrderRow) => {
 <title>Invoice - ${order.order_number}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; padding: 32px; color: #1a1a1a; max-width: 800px; margin: auto; background: #fff; }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&display=swap');
+  body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; padding: 24px; color: #1a1a1a; max-width: 800px; margin: auto; background: #fff; }
   
-  .invoice-container { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  .invoice-container { border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
   
-  .header { background: linear-gradient(135deg, #92400e 0%, #b45309 50%, #d97706 100%); color: white; padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; }
-  .brand-section { display: flex; align-items: center; gap: 16px; }
-  .brand-logo { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
-  .brand-name { font-size: 22px; font-weight: 700; }
-  .brand-name small { display: block; font-size: 11px; font-weight: 400; opacity: 0.8; letter-spacing: 1px; }
-  .invoice-meta { text-align: right; }
-  .invoice-meta h2 { font-size: 24px; font-weight: 800; letter-spacing: 2px; opacity: 0.9; }
-  .invoice-meta p { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+  /* Premium Header */
+  .header { 
+    background: linear-gradient(135deg, #78350f 0%, #92400e 30%, #b45309 60%, #d97706 100%); 
+    color: white; 
+    padding: 24px 32px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .brand-section { display: flex; align-items: center; gap: 14px; z-index: 1; }
+  .brand-logo { 
+    width: 52px; height: 52px; border-radius: 50%; 
+    border: 2px solid rgba(255,255,255,0.35); 
+    object-fit: cover; 
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  .brand-info {}
+  .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+  .brand-tagline { font-size: 10px; opacity: 0.7; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+  
+  .invoice-meta { text-align: right; z-index: 1; }
+  .invoice-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
+  .invoice-number { font-size: 14px; font-weight: 700; margin-top: 4px; }
+  .invoice-date { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .invoice-status { 
+    display: inline-block; 
+    background: rgba(255,255,255,0.2); 
+    padding: 3px 10px; 
+    border-radius: 20px; 
+    font-size: 10px; 
+    font-weight: 600; 
+    margin-top: 6px; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+  }
   
   .body-content { padding: 28px 32px; }
   
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
-  .info-box { background: #fffbeb; padding: 16px; border-radius: 10px; border-left: 4px solid #f59e0b; }
-  .info-box h4 { font-size: 11px; color: #92400e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-  .info-box p { font-size: 13px; line-height: 1.8; color: #374151; }
-  .info-box strong { color: #1a1a1a; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .info-box { 
+    background: linear-gradient(135deg, #fffbeb, #fef9f0); 
+    padding: 16px; 
+    border-radius: 12px; 
+    border: 1px solid #fde68a;
+  }
+  .info-box h4 { 
+    font-size: 10px; 
+    color: #92400e; 
+    margin-bottom: 10px; 
+    text-transform: uppercase; 
+    letter-spacing: 1.5px; 
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-box p { font-size: 13px; line-height: 1.9; color: #374151; }
+  .info-box strong { color: #1a1a1a; font-weight: 700; }
   
-  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; border-radius: 10px; overflow: hidden; }
-  th { background: #1f2937; color: white; text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-  td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; }
-  tr:last-child td { border-bottom: none; }
-  .total-row { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
-  .total-row td { font-weight: 700; font-size: 18px; color: #92400e; border-top: 2px solid #f59e0b; padding: 16px; }
+  /* Table */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+  th { background: #1f2937; color: white; text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  td { padding: 12px 16px; font-size: 13px; color: #374151; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  .subtotal-row td { border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px; }
+  .total-row { background: linear-gradient(135deg, #fffbeb, #fef3c7) !important; }
+  .total-row td { font-weight: 800; font-size: 16px; color: #92400e; border-top: 2px solid #f59e0b; padding: 14px 16px; }
   
-  .payment-badge { display: inline-block; background: #ecfdf5; color: #065f46; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #a7f3d0; margin-bottom: 20px; }
+  /* Payment badge */
+  .payment-section { 
+    display: flex; 
+    justify-content: center; 
+    gap: 12px; 
+    margin: 20px 0;
+  }
+  .payment-badge { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5); 
+    color: #065f46; 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    font-size: 13px; 
+    font-weight: 600; 
+    border: 1px solid #a7f3d0;
+  }
   
-  .footer { background: #f9fafb; padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center; }
-  .footer p { font-size: 11px; color: #9ca3af; line-height: 1.8; }
-  .footer .highlight { color: #b45309; font-weight: 600; }
+  /* Footer */
+  .footer { 
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9); 
+    padding: 20px 32px; 
+    border-top: 1px solid #e2e8f0; 
+    text-align: center; 
+  }
+  .footer-brand { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+  .footer p { font-size: 11px; color: #94a3b8; line-height: 1.8; }
   
-  .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 80px; opacity: 0.03; font-weight: 900; color: #b45309; pointer-events: none; }
+  .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 90px; opacity: 0.025; font-weight: 900; color: #b45309; pointer-events: none; letter-spacing: 10px; }
   
   @media print { 
     body { padding: 0; } 
     .no-print { display: none !important; } 
-    .invoice-container { border: none; }
+    .invoice-container { border: none; box-shadow: none; }
   }
 </style>
 </head><body>
@@ -94,14 +182,17 @@ const generateInvoiceHTML = (order: OrderRow) => {
   <div class="invoice-container">
     <div class="header">
       <div class="brand-section">
-        <div>
-          <div class="brand-name">🍯 Fresh Foods<small>Natural Honey — Eat Natural</small></div>
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgdmlld0JveD0iMCAwIDUyIDUyIj48Y2lyY2xlIGN4PSIyNiIgY3k9IjI2IiByPSIyNiIgZmlsbD0iI2Y1OWUwYiIvPjx0ZXh0IHg9IjI2IiB5PSIzNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyOCIgZm9udC1mYW1pbHk9IkFyaWFsIj7wn42vPC90ZXh0Pjwvc3ZnPg==" alt="Logo" class="brand-logo" />
+        <div class="brand-info">
+          <div class="brand-name">Fresh Foods</div>
+          <div class="brand-tagline">Natural Honey — Eat Natural</div>
         </div>
       </div>
       <div class="invoice-meta">
-        <h2>INVOICE</h2>
-        <p>#${order.order_number}</p>
-        <p>${new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}</p>
+        <div class="invoice-label">Invoice</div>
+        <div class="invoice-number">#${order.order_number}</div>
+        <div class="invoice-date">${new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}</div>
+        <div class="invoice-status">${statusEn}</div>
       </div>
     </div>
     
@@ -131,13 +222,13 @@ const generateInvoiceHTML = (order: OrderRow) => {
         </thead>
         <tbody>
           <tr>
-            <td>🍯 Natural Honey</td>
+            <td>🍯 Fresh Foods Natural Honey</td>
             <td style="text-align:center">${order.quantity}</td>
             <td style="text-align:right">৳${order.unit_price?.toLocaleString() || "—"}</td>
             <td style="text-align:right">৳${((order.unit_price || 0) * order.quantity).toLocaleString()}</td>
           </tr>
-          <tr>
-            <td colspan="3" style="text-align:right; color: #6b7280;">ডেলিভারি চার্জ</td>
+          <tr class="subtotal-row">
+            <td colspan="3" style="text-align:right">ডেলিভারি চার্জ</td>
             <td style="text-align:right">৳${order.delivery_charge.toLocaleString()}</td>
           </tr>
           <tr class="total-row">
@@ -147,15 +238,15 @@ const generateInvoiceHTML = (order: OrderRow) => {
         </tbody>
       </table>
       
-      <div style="text-align:center">
+      <div class="payment-section">
         <div class="payment-badge">💰 পেমেন্ট: ${paymentLabel}</div>
       </div>
     </div>
     
     <div class="footer">
-      <p class="highlight">Fresh Foods — Natural Honey | Eat Natural</p>
-      <p>📍 Feni, Bangladesh | 📞 ০১৮৬৮৩৭১৬৭৪ | 📧 info@deshifoods.com</p>
-      <p>ধন্যবাদ আপনার অর্ডারের জন্য!</p>
+      <p class="footer-brand">🍯 Fresh Foods — Natural Honey | Eat Natural</p>
+      <p>📍 Feni, Bangladesh | 📞 ০১৮৬৮৩৭১৬৭৪ | 📧 info@freshfoods.com</p>
+      <p style="margin-top: 8px; font-size: 10px; color: #cbd5e1;">ধন্যবাদ আপনার অর্ডারের জন্য! — Thank you for your order!</p>
     </div>
   </div>
 </body></html>`;
@@ -243,9 +334,7 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
               className="text-sm rounded-md border px-3 py-1.5 w-full bg-background"
             >
               <option value="cod">💵 ক্যাশ অন ডেলিভারি (COD)</option>
-              <option value="mfs">📱 মোবাইল ব্যাংকিং (bKash/Nagad)</option>
-              <option value="card">💳 কার্ড পেমেন্ট (Visa/Master)</option>
-              <option value="bank">🏦 ব্যাংক ট্রান্সফার</option>
+              <option value="mfs">📱 মোবাইল ব্যাংকিং (নগদ/বিকাশ/রকেট)</option>
             </select>
           </div>
 

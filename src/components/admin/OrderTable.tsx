@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Eye, Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, Search, Download } from "lucide-react";
+import { generateInvoiceHTML } from "./OrderDetailModal";
 
 export interface OrderRow {
   id: string;
@@ -45,6 +47,7 @@ interface Props {
 
 const OrderTable = ({ orders, loading, onStatusChange, onViewOrder }: Props) => {
   const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = orders.filter((o) =>
     !search ||
@@ -53,11 +56,54 @@ const OrderTable = ({ orders, loading, onStatusChange, onViewOrder }: Props) => 
     o.order_number.toLowerCase().includes(search.toLowerCase())
   );
 
+  const allSelected = filtered.length > 0 && filtered.every((o) => selectedIds.has(o.id));
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((o) => o.id)));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const handleBulkDownload = () => {
+    const selected = filtered.filter((o) => selectedIds.has(o.id));
+    if (!selected.length) return;
+
+    selected.forEach((order, i) => {
+      setTimeout(() => {
+        const html = generateInvoiceHTML(order);
+        const blob = new Blob([html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoice-${order.order_number}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, i * 300);
+    });
+  };
+
   return (
     <Card className="border-border/50 shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="text-lg">অর্ডার তালিকা ({filtered.length})</CardTitle>
+          <div className="flex items-center gap-3">
+            <CardTitle className="text-lg">অর্ডার তালিকা ({filtered.length})</CardTitle>
+            {selectedIds.size > 0 && (
+              <Button size="sm" variant="outline" onClick={handleBulkDownload} className="gap-1.5">
+                <Download className="h-3.5 w-3.5" />
+                ইনভয়েস ডাউনলোড ({selectedIds.size})
+              </Button>
+            )}
+          </div>
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -83,10 +129,14 @@ const OrderTable = ({ orders, loading, onStatusChange, onViewOrder }: Props) => 
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[40px]">
+                    <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+                  </TableHead>
                   <TableHead className="w-[120px]">অর্ডার নং</TableHead>
                   <TableHead>নাম</TableHead>
                   <TableHead>ফোন</TableHead>
                   <TableHead className="text-right">মোট</TableHead>
+                  <TableHead>পেমেন্ট</TableHead>
                   <TableHead>তারিখ</TableHead>
                   <TableHead>স্ট্যাটাস</TableHead>
                   <TableHead className="w-[60px]">অ্যাকশন</TableHead>
@@ -95,12 +145,20 @@ const OrderTable = ({ orders, loading, onStatusChange, onViewOrder }: Props) => 
               <TableBody>
                 {filtered.map((order) => (
                   <TableRow key={order.id} className="group cursor-pointer" onClick={() => onViewOrder(order)}>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Checkbox checked={selectedIds.has(order.id)} onCheckedChange={() => toggleOne(order.id)} />
+                    </TableCell>
                     <TableCell className="font-mono text-xs">{order.order_number}</TableCell>
                     <TableCell className="font-medium">{order.customer_name}</TableCell>
                     <TableCell>
                       <a href={`tel:${order.phone}`} className="text-blue-600 hover:underline" onClick={(e) => e.stopPropagation()}>{order.phone}</a>
                     </TableCell>
                     <TableCell className="text-right font-bold">৳{order.total_amount.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px] font-medium">
+                        {order.payment_method === "mfs" ? "📱 MFS" : "💵 COD"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
                     </TableCell>

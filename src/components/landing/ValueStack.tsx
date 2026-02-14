@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Gift, Truck, Shield, ArrowDown, Sparkles } from "lucide-react";
 import { useBonuses, useProductVariations } from "@/hooks/useData";
-import honeyJarSmall from "@/assets/honey-jar-small.png";
+import honeyJarHero from "@/assets/honey-jar-hero.png";
 
 const ValueStack = () => {
   const { data: bonuses } = useBonuses();
@@ -48,11 +48,13 @@ const ValueStack = () => {
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
-          {/* Honey jar visual */}
-          <div className="hidden md:block flex-shrink-0">
-            <div className="relative w-40 h-40">
-              <img src={honeyJarSmall} alt="খাঁটি মধু" className="w-full h-full object-contain drop-shadow-xl" loading="lazy" />
-              <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-2xl scale-90" />
+          {/* Honey jar visual - same as hero */}
+          <div className="flex-shrink-0">
+            <div className="relative rounded-2xl overflow-hidden p-6"
+              style={{ background: "linear-gradient(145deg, hsl(35 60% 30% / 0.5) 0%, hsl(25 50% 20% / 0.6) 100%)", boxShadow: "inset 0 2px 20px hsl(35 80% 50% / 0.15), 0 8px 32px hsl(0 0% 0% / 0.3)" }}>
+              <div className="relative w-48 h-60 md:w-56 md:h-72">
+                <img src={honeyJarHero} alt="Fresh Foods - Natural Honey" className="w-full h-full object-contain drop-shadow-2xl" loading="lazy" />
+              </div>
             </div>
           </div>
 
@@ -84,7 +86,10 @@ const ValueStack = () => {
             </div>
           </div>
 
-          <div className="text-center">
+          </div>
+          </div>
+
+          <div className="text-center mt-8">
             <Button
               onClick={scrollToOrder}
               size="lg"
@@ -93,8 +98,6 @@ const ValueStack = () => {
               👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
               <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
             </Button>
-          </div>
-          </div>
           </div>
         </div>
       </section>
