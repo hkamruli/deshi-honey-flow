@@ -398,35 +398,31 @@ const OrderForm = ({ selectedProduct }: Props) => {
                     <span>৳{honeyDipperValue}</span>
                   </div>
 
-                  {/* Deductions section */}
-                  {formData.deliveryZone && (
-                    <>
-                      <div className="border-t border-border pt-2 mt-1">
-                        <p className="text-xs text-muted-foreground mb-1">ছাড়সমূহ:</p>
-                      </div>
-                      {freeDeliveryEnabled && (
-                        <div className="flex justify-between text-sm text-secondary">
-                          <span>🚚 ফ্রি ডেলিভারি</span>
-                          <span className="font-bold">-৳{deliveryChargeActual}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between text-sm text-secondary">
-                        <span>🎁 ফ্রি হানি ডিপার</span>
-                        <span className="font-bold">-৳{honeyDipperValue}</span>
-                      </div>
-                      {discountAmount > 0 && (
-                        <div className="flex justify-between text-sm text-secondary">
-                          <span>🏷️ বিশেষ ডিসকাউন্ট</span>
-                          <span className="font-bold">-৳{discountAmount}</span>
-                        </div>
-                      )}
-                      {/* Savings summary */}
-                      <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
-                        <span>💰 মোট সাশ্রয়</span>
-                        <span className="font-bold">৳{(freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
-                      </div>
-                    </>
+                  {/* Deductions section - always visible */}
+                  <div className="border-t border-border pt-2 mt-1">
+                    <p className="text-xs text-muted-foreground mb-1">ছাড়সমূহ:</p>
+                  </div>
+                  {formData.deliveryZone && freeDeliveryEnabled && (
+                    <div className="flex justify-between text-sm text-secondary">
+                      <span>🚚 ফ্রি ডেলিভারি</span>
+                      <span className="font-bold">-৳{deliveryChargeActual}</span>
+                    </div>
                   )}
+                  <div className="flex justify-between text-sm text-secondary">
+                    <span>🎁 ফ্রি হানি ডিপার</span>
+                    <span className="font-bold">-৳{honeyDipperValue}</span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-secondary">
+                      <span>🏷️ বিশেষ ডিসকাউন্ট</span>
+                      <span className="font-bold">-৳{discountAmount}</span>
+                    </div>
+                  )}
+                  {/* Savings summary */}
+                  <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
+                    <span>💰 মোট সাশ্রয়</span>
+                    <span className="font-bold">৳{(formData.deliveryZone && freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
+                  </div>
                   <div className="flex justify-between font-bold text-lg border-t border-border pt-2 mt-1">
                     <span>মোট পরিশোধযোগ্য</span>
                     <span className="text-primary">৳{total > 0 ? total : subtotal}</span>
