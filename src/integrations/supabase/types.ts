@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_carts: {
+        Row: {
+          area: string | null
+          contact_notes: string | null
+          contacted: boolean | null
+          created_at: string
+          customer_name: string | null
+          district_id: string | null
+          email: string | null
+          full_address: string | null
+          id: string
+          ip_address: string | null
+          is_converted: boolean | null
+          phone: string | null
+          product_variation_id: string | null
+          quantity: number | null
+          referrer_url: string | null
+          session_id: string | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          area?: string | null
+          contact_notes?: string | null
+          contacted?: boolean | null
+          created_at?: string
+          customer_name?: string | null
+          district_id?: string | null
+          email?: string | null
+          full_address?: string | null
+          id?: string
+          ip_address?: string | null
+          is_converted?: boolean | null
+          phone?: string | null
+          product_variation_id?: string | null
+          quantity?: number | null
+          referrer_url?: string | null
+          session_id?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          area?: string | null
+          contact_notes?: string | null
+          contacted?: boolean | null
+          created_at?: string
+          customer_name?: string | null
+          district_id?: string | null
+          email?: string | null
+          full_address?: string | null
+          id?: string
+          ip_address?: string | null
+          is_converted?: boolean | null
+          phone?: string | null
+          product_variation_id?: string | null
+          quantity?: number | null
+          referrer_url?: string | null
+          session_id?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abandoned_carts_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abandoned_carts_product_variation_id_fkey"
+            columns: ["product_variation_id"]
+            isOneToOne: false
+            referencedRelation: "product_variations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_logs: {
         Row: {
           action: string

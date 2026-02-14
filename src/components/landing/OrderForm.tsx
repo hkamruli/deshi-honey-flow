@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,66 @@ const OrderForm = ({ selectedProduct }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [highlight, setHighlight] = useState(false);
+  const abandonedCartId = useRef<string | null>(null);
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasInteracted = useRef(false);
+  const submitted = useRef(false);
+
+  // Save partial form data as abandoned cart
+  const saveAbandonedCart = useCallback(async (data: typeof formData) => {
+    if (submitted.current) return;
+    // Only save if user has entered at least name or phone
+    if (!data.name && !data.phone) return;
+
+    const payload = {
+      session_id: sessionStorage.getItem("visitor_session_id") || null,
+      customer_name: data.name.trim() || null,
+      phone: data.phone.trim() || null,
+      email: data.email.trim() || null,
+      district_id: data.districtId || null,
+      area: data.area.trim() || null,
+      full_address: data.address.trim() || null,
+      product_variation_id: data.productId || null,
+      quantity: data.quantity,
+      user_agent: navigator.userAgent,
+      referrer_url: document.referrer || null,
+    };
+
+    try {
+      if (abandonedCartId.current) {
+        await supabase.from("abandoned_carts").update(payload as any).eq("id", abandonedCartId.current);
+      } else {
+        const { data: inserted } = await supabase.from("abandoned_carts").insert(payload as any).select("id").single();
+        if (inserted) abandonedCartId.current = inserted.id;
+      }
+    } catch (e) {
+      // Silent fail
+    }
+  }, []);
+
+  // Debounced save on form change
+  useEffect(() => {
+    if (!hasInteracted.current) return;
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => saveAbandonedCart(formData), 3000);
+    return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
+  }, [formData, saveAbandonedCart]);
+
+  // Save on page leave
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (hasInteracted.current && !submitted.current && (formData.name || formData.phone)) {
+        saveAbandonedCart(formData);
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formData, saveAbandonedCart]);
+
+  const handleFieldChange = (updates: Partial<typeof formData>) => {
+    hasInteracted.current = true;
+    setFormData((prev) => ({ ...prev, ...updates }));
+  };
 
   // Select product when clicked from product cards
   useEffect(() => {
@@ -93,7 +153,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
     if (!selected) return;
 
     setSubmitting(true);
-
+    submitted.current = true;
     try {
       trackEvent("form_submitted");
 
@@ -116,6 +176,11 @@ const OrderForm = ({ selectedProduct }: Props) => {
       } as any).select("order_number").single();
 
       if (error) throw error;
+
+      // Delete abandoned cart since order was placed
+      if (abandonedCartId.current) {
+        supabase.from("abandoned_carts").update({ is_converted: true } as any).eq("id", abandonedCartId.current).then(() => {});
+      }
 
       trackEvent("order_placed", { total, product: selected.name });
 
@@ -176,7 +241,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                 <div>
                   <Label className="text-sm font-semibold">আপনার নাম *</Label>
                   <Input required placeholder="আপনার পুরো নাম" className="mt-1" value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    onChange={(e) => handleFieldChange({ name: e.target.value })} />
                 </div>
 
                 {/* Phone with +880 prefix */}
@@ -191,7 +256,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                       className="rounded-l-none"
                       value={formData.phone}
                       onChange={(e) => {
-                        setFormData({ ...formData, phone: e.target.value });
+                        handleFieldChange({ phone: e.target.value });
                         setPhoneError("");
                       }}
                     />
@@ -203,7 +268,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                 <div>
                   <Label className="text-sm font-semibold">ইমেইল *</Label>
                   <Input required type="email" placeholder="example@gmail.com" className="mt-1" value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+                    onChange={(e) => handleFieldChange({ email: e.target.value })} />
                 </div>
 
                 {/* District dropdown */}
@@ -213,7 +278,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                     required
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
                     value={formData.districtId}
-                    onChange={(e) => setFormData({ ...formData, districtId: e.target.value })}
+                    onChange={(e) => handleFieldChange({ districtId: e.target.value })}
                   >
                     <option value="">জেলা নির্বাচন করুন</option>
                     {districts?.map((d: any) => (
@@ -226,14 +291,14 @@ const OrderForm = ({ selectedProduct }: Props) => {
                 <div>
                   <Label className="text-sm font-semibold">এলাকা</Label>
                   <Input placeholder="থানা / এলাকার নাম" className="mt-1" value={formData.area}
-                    onChange={(e) => setFormData({ ...formData, area: e.target.value })} />
+                    onChange={(e) => handleFieldChange({ area: e.target.value })} />
                 </div>
 
                 {/* Full address */}
                 <div>
                   <Label className="text-sm font-semibold">সম্পূর্ণ ঠিকানা *</Label>
                   <Input required placeholder="বাসা নং, রোড, বিস্তারিত ঠিকানা" className="mt-1" value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                    onChange={(e) => handleFieldChange({ address: e.target.value })} />
                 </div>
 
                 {/* Product radio cards */}
@@ -254,7 +319,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                           name="product"
                           value={p.id}
                           checked={formData.productId === p.id}
-                          onChange={() => setFormData({ ...formData, productId: p.id })}
+                          onChange={() => handleFieldChange({ productId: p.id })}
                           className="sr-only"
                         />
                         <div className="text-xl mb-1">🍯</div>
