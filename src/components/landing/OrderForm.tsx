@@ -385,28 +385,35 @@ const OrderForm = ({ selectedProduct }: Props) => {
                     <span>{selected?.name_bn} ({selected?.size_bn}) × {formData.quantity}</span>
                     <span>৳{subtotal}</span>
                   </div>
-                  {/* Delivery charge - shown as free */}
+                {/* Delivery charge - shown as free */}
                   {formData.deliveryZone && (
                     <div className="flex justify-between text-sm">
-                      <span>ডেলিভারি চার্জ ({isDhaka ? "ঢাকা" : "ঢাকার বাইরে"})</span>
+                      <span>🚚 ডেলিভারি চার্জ ({isDhaka ? "ঢাকা" : "ঢাকার বাইরে"})</span>
                       {freeDeliveryEnabled ? (
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-2">
                           <span className="line-through text-muted-foreground text-xs">৳{deliveryChargeActual}</span>
-                          <span className="text-secondary font-bold text-xs">ফ্রি</span>
+                          <span className="text-secondary font-bold text-xs bg-secondary/10 px-2 py-0.5 rounded-full">ফ্রি ✅</span>
                         </span>
                       ) : (
                         <span>৳{deliveryChargeActual}</span>
                       )}
                     </div>
                   )}
-                  {/* Honey dipper - shown as free */}
+                  {/* Honey dipper - shown as free gift */}
                   <div className="flex justify-between text-sm">
-                    <span>🎁 হানি ডিপার</span>
-                    <span className="flex items-center gap-1">
+                    <span>🎁 হানি ডিপার (ফ্রি গিফট)</span>
+                    <span className="flex items-center gap-2">
                       <span className="line-through text-muted-foreground text-xs">৳{honeyDipperValue}</span>
-                      <span className="text-secondary font-bold text-xs">ফ্রি</span>
+                      <span className="text-secondary font-bold text-xs bg-secondary/10 px-2 py-0.5 rounded-full">ফ্রি ✅</span>
                     </span>
                   </div>
+                  {/* Savings summary */}
+                  {formData.deliveryZone && (
+                    <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
+                      <span>💰 আপনার সাশ্রয়</span>
+                      <span className="font-bold">৳{(freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
+                    </div>
+                  )}
                   {/* Discount if any */}
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-sm text-secondary">

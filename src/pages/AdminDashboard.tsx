@@ -68,8 +68,9 @@ const AdminDashboard = () => {
     ]);
 
     const allOrders = periodOrders || [];
-    const revenue = allOrders.reduce((s: number, o: any) => s + o.total_amount, 0);
-    const deliveryRevenue = allOrders.reduce((s: number, o: any) => s + (o.delivery_charge || 0), 0);
+    const activeOrders = allOrders.filter((o: any) => o.status !== "cancelled");
+    const revenue = activeOrders.reduce((s: number, o: any) => s + o.total_amount, 0);
+    const deliveryRevenue = activeOrders.reduce((s: number, o: any) => s + (o.delivery_charge || 0), 0);
 
     // Unique daily visitors by session_id
     const uniqueTodayVisitors = new Set((todayVisitors || []).map((v: any) => v.session_id)).size;
