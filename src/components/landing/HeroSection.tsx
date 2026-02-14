@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowDown } from "lucide-react";
 import AnimatedBee from "./AnimatedBee";
 import FloatingPollen from "./FloatingPollen";
+import honeyJarHero from "@/assets/honey-jar-hero.png";
 
 const HeroSection = () => {
   const scrollToOrder = () => {
@@ -43,55 +44,71 @@ const HeroSection = () => {
       {/* Radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px]" />
 
-      <div className="relative z-20 container mx-auto px-4 py-16 text-center">
-        {/* Urgency badge */}
-        <Badge className="mb-5 bg-urgency text-primary-foreground text-sm px-5 py-2 animate-pulse rounded-full shadow-lg">
-          🔥 আজকের অফার – সীমিত সময়
-        </Badge>
+      <div className="relative z-20 container mx-auto px-4 py-16">
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          {/* Left: Text content */}
+          <div className="flex-1 text-center md:text-left">
+            {/* Urgency badge */}
+            <Badge className="mb-5 bg-urgency text-primary-foreground text-sm px-5 py-2 animate-pulse rounded-full shadow-lg">
+              🔥 আজকের অফার – সীমিত সময়
+            </Badge>
 
-        {/* Brand */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
-          <span className="text-gradient-honey drop-shadow-lg">দেশি ফুডস</span>
-        </h1>
+            {/* Brand */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
+              <span className="text-gradient-honey drop-shadow-lg">দেশি ফুডস</span>
+            </h1>
 
-        {/* Honey jar */}
-        <div className="text-6xl md:text-8xl mb-4 drop-shadow-xl">🍯</div>
+            <p className="text-xl md:text-2xl font-bold mb-2 text-cream">
+              সুন্দরবন ও সিলেটের খাঁটি মধু
+            </p>
+            <p className="text-sm md:text-base text-cream/60 mb-6 max-w-md md:mx-0 mx-auto">
+              ১০০% প্রাকৃতিক — কোনো চিনি নেই, কোনো কেমিক্যাল নেই
+            </p>
 
-        <p className="text-xl md:text-2xl font-bold mb-2 text-cream">
-          সুন্দরবন ও সিলেটের খাঁটি মধু
-        </p>
-        <p className="text-sm md:text-base text-cream/60 mb-6 max-w-md mx-auto">
-          ১০০% প্রাকৃতিক — কোনো চিনি নেই, কোনো কেমিক্যাল নেই
-        </p>
+            {/* Countdown timer */}
+            <div className="mb-6">
+              <p className="text-cream/50 text-xs mb-2">⏰ অফার শেষ হচ্ছে</p>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-xl md:text-2xl font-extrabold">
+                {[pad(timeLeft.hours), pad(timeLeft.minutes), pad(timeLeft.seconds)].map((v, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    {i > 0 && <span className="text-cream/40">:</span>}
+                    <span className={`px-2.5 py-1.5 rounded-lg min-w-[44px] inline-block ${
+                      isUrgent ? "bg-urgency/80 text-primary-foreground" : "bg-cream/10 text-cream"
+                    }`}>
+                      {v}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </div>
 
-        {/* Countdown timer */}
-        <div className="mb-6">
-          <p className="text-cream/50 text-xs mb-2">⏰ অফার শেষ হচ্ছে</p>
-          <div className="flex items-center justify-center gap-2 text-xl md:text-2xl font-extrabold">
-            {[pad(timeLeft.hours), pad(timeLeft.minutes), pad(timeLeft.seconds)].map((v, i) => (
-              <span key={i} className="flex items-center gap-2">
-                {i > 0 && <span className="text-cream/40">:</span>}
-                <span className={`px-2.5 py-1.5 rounded-lg min-w-[44px] inline-block ${
-                  isUrgent ? "bg-urgency/80 text-primary-foreground" : "bg-cream/10 text-cream"
-                }`}>
-                  {v}
-                </span>
-              </span>
-            ))}
+            {/* CTA */}
+            <Button
+              onClick={scrollToOrder}
+              size="lg"
+              className="bg-gradient-cta text-primary-foreground font-bold text-base md:text-lg px-10 py-7 rounded-full glow-cta hover:scale-105 transition-all duration-300 animate-pulse-glow"
+            >
+              👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
+              <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
+            </Button>
+
+            <p className="mt-4 text-cream/40 text-xs">🚚 সারা বাংলাদেশে ক্যাশ অন ডেলিভারি</p>
+          </div>
+
+          {/* Right: Honey jar image */}
+          <div className="flex-shrink-0 relative">
+            <div className="relative w-56 h-72 md:w-72 md:h-96">
+              <img
+                src={honeyJarHero}
+                alt="দেশি ফুডস খাঁটি মধু"
+                className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
+                loading="eager"
+              />
+              {/* Glow behind jar */}
+              <div className="absolute inset-0 -z-10 rounded-full bg-primary/15 blur-3xl scale-75" />
+            </div>
           </div>
         </div>
-
-        {/* CTA */}
-        <Button
-          onClick={scrollToOrder}
-          size="lg"
-          className="bg-gradient-cta text-primary-foreground font-bold text-base md:text-lg px-10 py-7 rounded-full glow-cta hover:scale-105 transition-all duration-300 animate-pulse-glow"
-        >
-          👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
-          <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
-        </Button>
-
-        <p className="mt-4 text-cream/40 text-xs">🚚 সারা বাংলাদেশে ক্যাশ অন ডেলিভারি</p>
       </div>
     </section>
   );
