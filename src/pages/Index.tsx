@@ -1,13 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import HeroSection from "@/components/landing/HeroSection";
+import SocialProofBar from "@/components/landing/SocialProofBar";
+import BenefitsSection from "@/components/landing/BenefitsSection";
+import SourcingStory from "@/components/landing/SourcingStory";
+import ProductOptions, { Product } from "@/components/landing/ProductOptions";
+import Testimonials from "@/components/landing/Testimonials";
+import FAQSection from "@/components/landing/FAQSection";
+import CountdownTimer from "@/components/landing/CountdownTimer";
+import OrderForm from "@/components/landing/OrderForm";
+import StickyCTA from "@/components/landing/StickyCTA";
+import Footer from "@/components/landing/Footer";
 
 const Index = () => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <main className="min-h-screen">
+      <HeroSection />
+      <SocialProofBar />
+      <BenefitsSection />
+      <SourcingStory />
+      <CountdownTimer />
+      <ProductOptions onSelectProduct={setSelectedProduct} />
+      <Testimonials />
+      <FAQSection />
+      <OrderForm selectedProduct={selectedProduct} />
+      <Footer />
+      <StickyCTA />
+    </main>
   );
 };
 
