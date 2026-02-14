@@ -1,40 +1,61 @@
 import FadeSection from "./FadeSection";
-import { ShieldCheck, Award, Leaf, Beaker } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Check, X, ShieldCheck, Leaf, Truck } from "lucide-react";
 
-const features = [
-  { icon: ShieldCheck, title: "১০০% বিশুদ্ধ", desc: "ল্যাব টেস্টেড ও সার্টিফাইড খাঁটি মধু" },
-  { icon: Leaf, title: "সম্পূর্ণ প্রাকৃতিক", desc: "কোনো প্রিজারভেটিভ বা কৃত্রিম উপাদান নেই" },
-  { icon: Award, title: "প্রিমিয়াম কোয়ালিটি", desc: "সুন্দরবন ও সিলেটের সেরা মধু" },
-  { icon: Beaker, title: "কোনো মিশ্রণ নেই", desc: "চিনি, পানি বা অন্য কিছু মেশানো হয় না" },
+const comparisonData = [
+  { feature: "বিশুদ্ধতা", other: "চিনি ও কেমিক্যাল মিশ্রিত", deshi: "১০০% খাঁটি, ল্যাব টেস্টেড" },
+  { feature: "উৎস", other: "অজানা, ফ্যাক্টরি প্রসেসড", deshi: "সুন্দরবন ও সিলেট থেকে সরাসরি" },
+  { feature: "পুষ্টিগুণ", other: "প্রক্রিয়াজাতে নষ্ট হয়", deshi: "সম্পূর্ণ প্রাকৃতিক এনজাইম অক্ষত" },
+  { feature: "প্যাকেজিং", other: "সাধারণ প্লাস্টিক বোতল", deshi: "প্রিমিয়াম গ্লাস জার" },
+  { feature: "গ্যারান্টি", other: "কোনো গ্যারান্টি নেই", deshi: "৭ দিনের মানি-ব্যাক গ্যারান্টি" },
+  { feature: "ডেলিভারি", other: "বিলম্ব ও অতিরিক্ত চার্জ", deshi: "দ্রুত ডেলিভারি + COD" },
 ];
 
 const SolutionSection = () => {
   return (
     <FadeSection>
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+      <section className="py-16 md:py-24 bg-card">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-10">
             <span className="inline-block bg-secondary/10 text-secondary px-4 py-2 rounded-full text-sm font-semibold mb-4">
               ✅ সমাধান
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
               <span className="text-gradient-honey">দেশি ফুডস</span> — আপনার বিশ্বস্ত মধু ব্র্যান্ড
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              আমরা সরাসরি মৌয়ালদের কাছ থেকে মধু সংগ্রহ করে আপনার ঘরে পৌঁছে দিই
-            </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
-            {features.map((f, i) => (
-              <div
-                key={i}
-                className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 text-center group"
-              >
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                  <f.icon className="h-7 w-7 text-primary" />
+
+          {/* Trust Badges */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-4 py-2 text-sm gap-1.5">
+              <ShieldCheck className="h-4 w-4" /> Lab Tested
+            </Badge>
+            <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-4 py-2 text-sm gap-1.5">
+              <Leaf className="h-4 w-4" /> 100% Organic
+            </Badge>
+            <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-4 py-2 text-sm gap-1.5">
+              <Truck className="h-4 w-4" /> COD Available
+            </Badge>
+          </div>
+
+          {/* Comparison Table */}
+          <div className="bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
+            <div className="grid grid-cols-3 text-center font-bold text-sm border-b border-border">
+              <div className="p-3 bg-muted"></div>
+              <div className="p-3 bg-urgency/5 text-urgency">❌ অন্য মধু</div>
+              <div className="p-3 bg-secondary/5 text-secondary">✅ দেশি ফুডস</div>
+            </div>
+            {comparisonData.map((row, i) => (
+              <div key={i} className={`grid grid-cols-3 text-xs md:text-sm ${i < comparisonData.length - 1 ? "border-b border-border" : ""}`}>
+                <div className="p-3 font-semibold bg-muted/50">{row.feature}</div>
+                <div className="p-3 text-muted-foreground flex items-start gap-1.5">
+                  <X className="h-3.5 w-3.5 text-urgency shrink-0 mt-0.5" />
+                  <span>{row.other}</span>
                 </div>
-                <h3 className="font-bold text-base mb-1">{f.title}</h3>
-                <p className="text-xs text-muted-foreground">{f.desc}</p>
+                <div className="p-3 flex items-start gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-secondary shrink-0 mt-0.5" />
+                  <span>{row.deshi}</span>
+                </div>
               </div>
             ))}
           </div>

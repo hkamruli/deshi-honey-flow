@@ -4,185 +4,302 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { products, Product } from "./ProductOptions";
-import { ShieldCheck, Truck, Phone, Lock } from "lucide-react";
+import { ShieldCheck, Truck, Phone, Lock, Plus, Minus } from "lucide-react";
+import { useProductVariations, useDistricts, useSettings } from "@/hooks/useData";
+import { supabase } from "@/integrations/supabase/client";
 import FadeSection from "./FadeSection";
 
 interface Props {
-  selectedProduct?: Product | null;
+  selectedProduct?: any;
 }
 
 const OrderForm = ({ selectedProduct }: Props) => {
   const navigate = useNavigate();
+  const { data: products } = useProductVariations();
+  const { data: districts } = useDistricts();
+  const { data: settings } = useSettings();
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
+    districtId: "",
+    area: "",
     address: "",
-    product: selectedProduct?.id || "1kg",
+    productId: "",
     quantity: 1,
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [highlight, setHighlight] = useState(false);
 
+  // Select product when clicked from product cards
   useEffect(() => {
-    if (selectedProduct) {
-      setFormData((prev) => ({ ...prev, product: selectedProduct.id }));
+    if (selectedProduct?.id) {
+      setFormData((prev) => ({ ...prev, productId: selectedProduct.id }));
     }
   }, [selectedProduct]);
 
-  const selected = products.find((p) => p.id === formData.product) || products[1];
-  const total = selected.price * formData.quantity;
+  // Auto-select first product
+  useEffect(() => {
+    if (products?.length && !formData.productId) {
+      const best = products.find((p: any) => p.sort_order === 3) || products[0];
+      setFormData((prev) => ({ ...prev, productId: best.id }));
+    }
+  }, [products]);
 
-  // Multi-quantity discount
-  const discount = formData.quantity >= 3 ? 0.1 : formData.quantity >= 2 ? 0.05 : 0;
-  const discountAmount = Math.round(total * discount);
-  const finalTotal = total - discountAmount;
+  // Highlight on scroll-to
+  useEffect(() => {
+    const observer = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && selectedProduct) {
+        setHighlight(true);
+        setTimeout(() => setHighlight(false), 1500);
+      }
+    }, { threshold: 0.3 });
+    const el = document.getElementById("order-section");
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [selectedProduct]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const selected = products?.find((p: any) => p.id === formData.productId);
+  const selectedDistrict = districts?.find((d: any) => d.id === formData.districtId);
+  const unitPrice = selected?.price || 0;
+  const subtotal = unitPrice * formData.quantity;
+  const deliveryCharge = selectedDistrict?.delivery_charge ??
+    Number(settings?.delivery_charge_outside_dhaka || 120);
+  const total = subtotal + deliveryCharge;
+
+  const validatePhone = (phone: string) => {
+    const cleaned = phone.replace(/\s/g, "");
+    if (!cleaned.startsWith("01") || cleaned.length !== 11 || !/^\d+$/.test(cleaned)) {
+      return "ফোন নম্বর 01 দিয়ে শুরু হবে এবং ১১ ডিজিট হবে";
+    }
+    return "";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const message = `🍯 *দেশি ফুডস - নতুন অর্ডার*\n\n` +
-      `👤 নাম: ${formData.name}\n` +
-      `📞 ফোন: ${formData.phone}\n` +
-      `📍 ঠিকানা: ${formData.address}\n` +
-      `📦 পণ্য: ${selected.name} (${selected.size})\n` +
-      `🔢 পরিমাণ: ${formData.quantity}\n` +
-      `💰 মোট: ৳${finalTotal}\n` +
-      `💳 পেমেন্ট: ক্যাশ অন ডেলিভারি`;
+    const phoneErr = validatePhone(formData.phone);
+    if (phoneErr) { setPhoneError(phoneErr); return; }
 
-    const whatsappUrl = `https://wa.me/8801XXXXXXXXX?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
+    if (!selected) return;
 
-    navigate("/thank-you", {
-      state: {
-        name: formData.name,
-        product: `${selected.name} (${selected.size})`,
+    setSubmitting(true);
+
+    try {
+      const { error } = await supabase.from("orders").insert({
+        customer_name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim() || null,
+        district_id: formData.districtId || null,
+        area: formData.area.trim() || null,
+        full_address: formData.address.trim(),
+        product_variation_id: selected.id,
         quantity: formData.quantity,
-        total: finalTotal,
-      },
-    });
+        unit_price: unitPrice,
+        delivery_charge: deliveryCharge,
+        total_amount: total,
+        ip_address: null,
+        user_agent: navigator.userAgent,
+        referrer_url: document.referrer || null,
+      } as any);
+
+      if (error) throw error;
+
+      navigate("/thank-you", {
+        state: {
+          name: formData.name,
+          product: `${selected.name_bn} (${selected.size_bn})`,
+          quantity: formData.quantity,
+          total,
+          deliveryCharge,
+        },
+      });
+    } catch (err) {
+      console.error("Order error:", err);
+      alert("অর্ডার জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const updateQuantity = (delta: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      quantity: Math.min(10, Math.max(1, prev.quantity + delta)),
+    }));
+  };
+
+  if (!products?.length) return null;
 
   return (
     <FadeSection>
-      <section id="order-section" className="py-16 md:py-24 bg-accent text-accent-foreground honeycomb-pattern">
+      <section id="order-section" className="py-16 md:py-24 honeycomb-pattern" style={{ background: "linear-gradient(160deg, hsl(16 60% 18%) 0%, hsl(25 20% 8%) 100%)" }}>
         <div className="container mx-auto px-4 max-w-lg">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">
-              অর্ডার করুন
-            </h2>
-            <p className="text-sm opacity-70">
-              🚚 ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে পেমেন্ট করুন
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2 text-cream">অর্ডার করুন</h2>
+            <p className="text-sm text-cream/60">🚚 ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে পেমেন্ট করুন</p>
           </div>
 
-          <Card className="border-primary/20 shadow-xl bg-card text-card-foreground">
-            <CardHeader className="pb-4">
+          <Card className={`border-primary/20 shadow-2xl bg-card transition-all duration-500 ${highlight ? "ring-4 ring-primary/40" : ""}`}>
+            <CardHeader className="pb-3">
               <CardTitle className="text-lg text-center flex items-center justify-center gap-2">
-                <Lock className="h-4 w-4 text-secondary" />
-                নিরাপদ অর্ডার ফর্ম
+                <Lock className="h-4 w-4 text-secondary" /> নিরাপদ অর্ডার ফর্ম
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Name */}
                 <div>
-                  <Label htmlFor="name" className="text-sm font-semibold">আপনার নাম *</Label>
-                  <Input
-                    id="name"
-                    required
-                    placeholder="আপনার পুরো নাম লিখুন"
-                    className="mt-1"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
+                  <Label className="text-sm font-semibold">আপনার নাম *</Label>
+                  <Input required placeholder="আপনার পুরো নাম" className="mt-1" value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 </div>
+
+                {/* Phone with +880 prefix */}
                 <div>
-                  <Label htmlFor="phone" className="text-sm font-semibold">ফোন নম্বর *</Label>
-                  <Input
-                    id="phone"
-                    required
-                    type="tel"
-                    placeholder="01XXXXXXXXX"
-                    className="mt-1"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  />
+                  <Label className="text-sm font-semibold">ফোন নম্বর *</Label>
+                  <div className="flex mt-1">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm text-muted-foreground">+880</span>
+                    <Input
+                      required
+                      type="tel"
+                      placeholder="01XXXXXXXXX"
+                      className="rounded-l-none"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        setPhoneError("");
+                      }}
+                    />
+                  </div>
+                  {phoneError && <p className="text-xs text-urgency mt-1">{phoneError}</p>}
                 </div>
+
+                {/* Email */}
                 <div>
-                  <Label htmlFor="address" className="text-sm font-semibold">ডেলিভারি ঠিকানা *</Label>
-                  <Input
-                    id="address"
-                    required
-                    placeholder="সম্পূর্ণ ঠিকানা লিখুন"
-                    className="mt-1"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  />
+                  <Label className="text-sm font-semibold">Gmail (optional)</Label>
+                  <Input type="email" placeholder="example@gmail.com" className="mt-1" value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                 </div>
+
+                {/* District dropdown */}
                 <div>
-                  <Label htmlFor="product" className="text-sm font-semibold">পণ্য নির্বাচন</Label>
+                  <Label className="text-sm font-semibold">জেলা *</Label>
                   <select
-                    id="product"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground mt-1"
-                    value={formData.product}
-                    onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                    required
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+                    value={formData.districtId}
+                    onChange={(e) => setFormData({ ...formData, districtId: e.target.value })}
                   >
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.size}) — ৳{p.price}
-                      </option>
+                    <option value="">জেলা নির্বাচন করুন</option>
+                    {districts?.map((d: any) => (
+                      <option key={d.id} value={d.id}>{d.name_bn}</option>
                     ))}
                   </select>
                 </div>
+
+                {/* Area */}
                 <div>
-                  <Label htmlFor="quantity" className="text-sm font-semibold">পরিমাণ</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    min={1}
-                    max={10}
-                    className="mt-1"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: Math.max(1, Number(e.target.value)) })}
-                  />
-                  {formData.quantity >= 2 && (
-                    <p className="text-xs text-secondary font-medium mt-1">
-                      🎉 {formData.quantity >= 3 ? "১০%" : "৫%"} মাল্টি-কোয়ান্টিটি ডিসকাউন্ট প্রযোজ্য!
-                    </p>
-                  )}
+                  <Label className="text-sm font-semibold">এলাকা</Label>
+                  <Input placeholder="থানা / এলাকার নাম" className="mt-1" value={formData.area}
+                    onChange={(e) => setFormData({ ...formData, area: e.target.value })} />
+                </div>
+
+                {/* Full address */}
+                <div>
+                  <Label className="text-sm font-semibold">সম্পূর্ণ ঠিকানা *</Label>
+                  <Input required placeholder="বাসা নং, রোড, বিস্তারিত ঠিকানা" className="mt-1" value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                </div>
+
+                {/* Product radio cards */}
+                <div>
+                  <Label className="text-sm font-semibold mb-2 block">পণ্য নির্বাচন</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {products.map((p: any) => (
+                      <label
+                        key={p.id}
+                        className={`relative cursor-pointer rounded-xl border-2 p-3 text-center transition-all ${
+                          formData.productId === p.id
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : "border-border hover:border-primary/30"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="product"
+                          value={p.id}
+                          checked={formData.productId === p.id}
+                          onChange={() => setFormData({ ...formData, productId: p.id })}
+                          className="sr-only"
+                        />
+                        <div className="text-xl mb-1">🍯</div>
+                        <p className="font-bold text-xs">{p.size_bn}</p>
+                        <p className="text-primary font-extrabold text-sm">৳{p.price}</p>
+                        {p.original_price && (
+                          <p className="text-[10px] text-muted-foreground line-through">৳{p.original_price}</p>
+                        )}
+                        {p.badge_bn && (
+                          <span className="absolute -top-2 right-1 bg-secondary text-secondary-foreground text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                            {p.badge_bn}
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quantity with +/- */}
+                <div>
+                  <Label className="text-sm font-semibold">পরিমাণ</Label>
+                  <div className="flex items-center gap-3 mt-1">
+                    <Button type="button" variant="outline" size="icon" onClick={() => updateQuantity(-1)} disabled={formData.quantity <= 1}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xl font-bold w-12 text-center">{formData.quantity}</span>
+                    <Button type="button" variant="outline" size="icon" onClick={() => updateQuantity(1)} disabled={formData.quantity >= 10}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Order summary */}
                 <div className="bg-muted rounded-xl p-4 space-y-2 border border-border">
                   <p className="font-semibold text-sm mb-2">অর্ডার সামারি</p>
                   <div className="flex justify-between text-sm">
-                    <span>{selected.name} ({selected.size}) × {formData.quantity}</span>
-                    <span>৳{total}</span>
+                    <span>{selected?.name_bn} ({selected?.size_bn}) × {formData.quantity}</span>
+                    <span>৳{subtotal}</span>
                   </div>
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between text-sm text-secondary">
-                      <span>ডিসকাউন্ট ({Math.round(discount * 100)}%)</span>
-                      <span>-৳{discountAmount}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between text-sm">
-                    <span>ডেলিভারি</span>
-                    <span className="text-secondary font-medium">ফ্রি</span>
+                    <span>ডেলিভারি চার্জ</span>
+                    <span>{deliveryCharge === 0 ? <span className="text-secondary font-medium">ফ্রি</span> : `৳${deliveryCharge}`}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-lg border-t border-border pt-2 mt-2">
+                  <div className="flex justify-between font-bold text-lg border-t border-border pt-2 mt-1">
                     <span>মোট</span>
-                    <span className="text-primary">৳{finalTotal}</span>
+                    <span className="text-primary">৳{total}</span>
                   </div>
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-cta text-primary-foreground font-bold text-lg py-7 rounded-full glow-cta hover:scale-[1.02] transition-all duration-300"
+                  disabled={submitting}
+                  className="w-full bg-gradient-cta text-primary-foreground font-bold text-lg py-7 rounded-full glow-cta hover:scale-[1.02] transition-all"
                 >
-                  অর্ডার কনফার্ম করুন ✅
+                  {submitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-25" /><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" className="opacity-75" /></svg>
+                      প্রসেসিং...
+                    </span>
+                  ) : (
+                    "✅ অর্ডার কনফার্ম করুন"
+                  )}
                 </Button>
 
-                <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground pt-1">
+                <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> নিরাপদ</span>
-                  <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> ফ্রি ডেলিভারি</span>
+                  <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> দ্রুত ডেলিভারি</span>
                   <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> ২৪/৭ সাপোর্ট</span>
                 </div>
               </form>
