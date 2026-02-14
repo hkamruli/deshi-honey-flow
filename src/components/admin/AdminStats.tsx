@@ -8,6 +8,8 @@ import {
   Package,
   CircleCheck,
   XCircle,
+  Eye,
+  BarChart3,
 } from "lucide-react";
 
 interface Analytics {
@@ -20,14 +22,16 @@ interface Analytics {
   shipped: number;
   delivered: number;
   cancelled: number;
+  todayVisitors: number;
+  conversionRate: string;
 }
 
 const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
   if (!analytics) {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[0, 1].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-24 bg-muted/50 rounded-xl animate-pulse" />
           ))}
         </div>
@@ -51,8 +55,8 @@ const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
 
   return (
     <div className="space-y-4">
-      {/* Revenue Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Top Row: Revenue + Visitors + Conversion */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Revenue */}
         <Card className="border-0 bg-red-50 dark:bg-red-950/30 shadow-sm">
           <CardContent className="p-5 flex items-center justify-between">
@@ -79,6 +83,36 @@ const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
             </div>
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
               <Truck className="h-6 w-6 text-emerald-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Today Visitors */}
+        <Card className="border-0 bg-blue-50 dark:bg-blue-950/30 shadow-sm">
+          <CardContent className="p-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">আজকের ভিজিটর</p>
+              <p className="text-3xl font-extrabold text-blue-600 mt-1">
+                {analytics.todayVisitors.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+              <Eye className="h-6 w-6 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Conversion Rate */}
+        <Card className="border-0 bg-purple-50 dark:bg-purple-950/30 shadow-sm">
+          <CardContent className="p-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">কনভার্সন রেট</p>
+              <p className="text-3xl font-extrabold text-purple-600 mt-1">
+                {analytics.conversionRate}%
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+              <BarChart3 className="h-6 w-6 text-purple-600" />
             </div>
           </CardContent>
         </Card>
