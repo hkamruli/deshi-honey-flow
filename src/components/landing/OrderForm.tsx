@@ -385,7 +385,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                     <span>{selected?.name_bn} ({selected?.size_bn}) × {formData.quantity}</span>
                     <span>৳{subtotal}</span>
                   </div>
-                {/* Delivery charge - shown as free */}
+                  {/* Delivery charge - shown as free */}
                   {formData.deliveryZone && (
                     <div className="flex justify-between text-sm">
                       <span>🚚 ডেলিভারি চার্জ ({isDhaka ? "ঢাকা" : "ঢাকার বাইরে"})</span>
@@ -407,11 +407,11 @@ const OrderForm = ({ selectedProduct }: Props) => {
                       <span className="text-secondary font-bold text-xs bg-secondary/10 px-2 py-0.5 rounded-full">ফ্রি ✅</span>
                     </span>
                   </div>
-                  {/* Savings summary */}
+                  {/* Total value before discount */}
                   {formData.deliveryZone && (
-                    <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
-                      <span>💰 আপনার সাশ্রয়</span>
-                      <span className="font-bold">৳{(freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
+                    <div className="flex justify-between text-sm border-t border-border pt-2">
+                      <span className="text-muted-foreground">মোট মূল্য</span>
+                      <span className="line-through text-muted-foreground">৳{subtotal + (freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
                     </div>
                   )}
                   {/* Discount if any */}
@@ -421,8 +421,15 @@ const OrderForm = ({ selectedProduct }: Props) => {
                       <span>-৳{discountAmount}</span>
                     </div>
                   )}
+                  {/* Savings summary */}
+                  {formData.deliveryZone && (
+                    <div className="flex justify-between text-xs text-secondary bg-secondary/5 rounded-lg p-2 mt-1">
+                      <span>💰 আপনার সাশ্রয়</span>
+                      <span className="font-bold">৳{(freeDeliveryEnabled ? deliveryChargeActual : 0) + honeyDipperValue + discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-lg border-t border-border pt-2 mt-1">
-                    <span>মোট</span>
+                    <span>মোট পরিশোধযোগ্য</span>
                     <span className="text-primary">৳{total > 0 ? total : subtotal}</span>
                   </div>
                 </div>

@@ -228,15 +228,23 @@ export const generateInvoiceHTML = (order: OrderRow) => {
             <td style="text-align:right">৳${((order.unit_price || 0) * order.quantity).toLocaleString()}</td>
           </tr>
           <tr class="subtotal-row">
-            <td colspan="3" style="text-align:right">ডেলিভারি চার্জ</td>
-            <td style="text-align:right">${order.delivery_charge === 0 ? '<span style="color:#059669;font-weight:600">ফ্রি</span>' : `৳${order.delivery_charge.toLocaleString()}`}</td>
+            <td colspan="3" style="text-align:right">🚚 ডেলিভারি চার্জ</td>
+            <td style="text-align:right">${order.delivery_charge === 0 ? '<span style="color:#059669;font-weight:600"><s style="color:#9ca3af;margin-right:4px">৳150</s> ফ্রি</span>' : `৳${order.delivery_charge.toLocaleString()}`}</td>
           </tr>
           <tr class="subtotal-row">
             <td colspan="3" style="text-align:right">🎁 হানি ডিপার</td>
-            <td style="text-align:right"><span style="color:#059669;font-weight:600">ফ্রি</span></td>
+            <td style="text-align:right"><span style="color:#059669;font-weight:600"><s style="color:#9ca3af;margin-right:4px">৳80</s> ফ্রি</span></td>
+          </tr>
+          <tr class="subtotal-row">
+            <td colspan="3" style="text-align:right">মোট মূল্য</td>
+            <td style="text-align:right"><s style="color:#9ca3af">৳${((order.unit_price || 0) * order.quantity + (order.delivery_charge === 0 ? 150 : order.delivery_charge) + 80).toLocaleString()}</s></td>
+          </tr>
+          <tr class="subtotal-row">
+            <td colspan="3" style="text-align:right; color:#059669; font-weight:600">💰 সাশ্রয়</td>
+            <td style="text-align:right; color:#059669; font-weight:600">-৳${((order.delivery_charge === 0 ? 150 : 0) + 80).toLocaleString()}</td>
           </tr>
           <tr class="total-row">
-            <td colspan="3" style="text-align:right">সর্বমোট</td>
+            <td colspan="3" style="text-align:right">সর্বমোট পরিশোধযোগ্য</td>
             <td style="text-align:right">৳${order.total_amount.toLocaleString()}</td>
           </tr>
         </tbody>
@@ -320,15 +328,23 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
               <span>৳{((order.unit_price || 0) * order.quantity).toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>ডেলিভারি চার্জ</span>
-              <span>{order.delivery_charge === 0 ? <span className="text-secondary font-medium">ফ্রি</span> : `৳${order.delivery_charge.toLocaleString()}`}</span>
+              <span>🚚 ডেলিভারি চার্জ</span>
+              <span>{order.delivery_charge === 0 ? <><span className="line-through text-xs mr-1">৳150</span><span className="text-secondary font-medium">ফ্রি</span></> : `৳${order.delivery_charge.toLocaleString()}`}</span>
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>🎁 হানি ডিপার</span>
-              <span className="text-secondary font-medium">ফ্রি</span>
+              <span><span className="line-through text-xs mr-1">৳80</span><span className="text-secondary font-medium">ফ্রি</span></span>
+            </div>
+            <div className="flex justify-between text-sm text-muted-foreground border-t pt-1">
+              <span>মোট মূল্য</span>
+              <span className="line-through">৳{((order.unit_price || 0) * order.quantity + (order.delivery_charge === 0 ? 150 : order.delivery_charge) + 80).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm text-secondary">
+              <span>💰 সাশ্রয়</span>
+              <span className="font-bold">-৳{((order.delivery_charge === 0 ? 150 : 0) + 80).toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm font-bold border-t pt-2">
-              <span>সর্বমোট</span>
+              <span>সর্বমোট পরিশোধযোগ্য</span>
               <span>৳{order.total_amount.toLocaleString()}</span>
             </div>
           </div>

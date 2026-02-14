@@ -16,6 +16,8 @@ interface Analytics {
   totalOrders: number;
   revenue: number;
   deliveryRevenue: number;
+  totalDiscountGiven: number;
+  totalFreeDeliveryGiven: number;
   pending: number;
   confirmed: number;
   processing: number;
@@ -56,7 +58,7 @@ const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
   return (
     <div className="space-y-4">
       {/* Top Row: Revenue + Visitors + Conversion */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Total Revenue */}
         <Card className="border-0 bg-red-50 dark:bg-red-950/30 shadow-sm">
           <CardContent className="p-5 flex items-center justify-between">
@@ -72,13 +74,28 @@ const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
           </CardContent>
         </Card>
 
-        {/* Delivery Revenue */}
+        {/* Total Discount Given */}
+        <Card className="border-0 bg-orange-50 dark:bg-orange-950/30 shadow-sm">
+          <CardContent className="p-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">মোট ডিসকাউন্ট দেওয়া</p>
+              <p className="text-3xl font-extrabold text-orange-600 mt-1">
+                ৳{(analytics.totalDiscountGiven ?? 0).toLocaleString()}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+              <TrendingUp className="h-6 w-6 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Free Delivery Given */}
         <Card className="border-0 bg-emerald-50 dark:bg-emerald-950/30 shadow-sm">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground font-medium">ডেলিভারি রেভিনিউ</p>
+              <p className="text-sm text-muted-foreground font-medium">মোট ফ্রি ডেলিভারি দেওয়া</p>
               <p className="text-3xl font-extrabold text-emerald-600 mt-1">
-                ৳{analytics.deliveryRevenue.toLocaleString()}
+                ৳{(analytics.totalFreeDeliveryGiven ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">

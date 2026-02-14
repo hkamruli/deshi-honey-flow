@@ -18,17 +18,18 @@ const ValueStack = () => {
   // Filter out recipe book from bonuses
   const filteredBonuses = bonuses?.filter((b: any) => b.name !== "Recipe Book") || [];
 
-  // Calculate total value (excluding recipe book)
-  const totalBonusValue = filteredBonuses.reduce((sum: number, b: any) => sum + (b.value || 0), 0);
+  // Calculate total value
   const deliveryValue = Number(settings?.delivery_charge_outside_dhaka || 150);
   const bestProduct = products?.find((p: any) => p.sort_order === 3); // 1kg
   const bestPrice = bestProduct?.price || 1000;
   const bestOriginal = bestProduct?.original_price || 1200;
-  const totalStackValue = bestOriginal + totalBonusValue + deliveryValue;
-  const savingsPercent = Math.round(((totalStackValue - bestPrice) / totalStackValue) * 100);
+  const honeyDipperValue = Number(settings?.honey_dipper_value || 80);
+  const totalStackValue = bestOriginal + deliveryValue + honeyDipperValue;
+  const totalDiscount = totalStackValue - bestPrice;
+  const savingsPercent = Math.round((totalDiscount / totalStackValue) * 100);
 
   const honeyDipperBonus = filteredBonuses.find((b: any) => b.name === "Free Honey Dipper");
-  const honeyDipperValue = honeyDipperBonus?.value || 80;
+  const honeyDipperBonusValue = honeyDipperBonus?.value || 80;
 
   const staticItems = [
     { icon: Check, text: "১০০% খাঁটি সুন্দরবনের / সিলেটের মধু" },
@@ -75,7 +76,7 @@ const ValueStack = () => {
                   <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto">
                     <img src={honeyDipper} alt="ফ্রি হানি ডিপার" className="w-full h-full object-contain drop-shadow-2xl" loading="lazy" />
                   </div>
-                  <p className="text-cream/80 text-xs mt-2 font-medium">🎁 ফ্রি হানি ডিপার <span className="line-through text-cream/40">৳{honeyDipperValue}</span></p>
+                  <p className="text-cream/80 text-xs mt-2 font-medium">🎁 ফ্রি হানি ডিপার <span className="line-through text-cream/40">৳{honeyDipperBonusValue}</span></p>
                 </div>
               </div>
             </div>
@@ -95,7 +96,7 @@ const ValueStack = () => {
                   <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                     <Gift className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <span className="text-cream/90 text-sm">ফ্রি হানি ডিপার (<span className="line-through text-cream/40">৳{honeyDipperValue}</span> <span className="text-secondary font-bold">ফ্রি!</span>)</span>
+                  <span className="text-cream/90 text-sm">ফ্রি হানি ডিপার (<span className="line-through text-cream/40">৳{honeyDipperBonusValue}</span> <span className="text-secondary font-bold">ফ্রি!</span>)</span>
                 </div>
               </div>
 
@@ -103,28 +104,36 @@ const ValueStack = () => {
               <div className="bg-cream/5 border border-cream/10 rounded-xl p-5 mb-8 text-cream">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-cream/60">পণ্যের মূল্য</span>
-                  <span className="line-through text-cream/40">৳{bestOriginal}</span>
+                  <span className="text-cream/80">৳{bestOriginal}</span>
                 </div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-cream/60">ডেলিভারি চার্জ</span>
-                  <span className="line-through text-cream/40">৳{deliveryValue}</span>
-                  <span className="text-secondary text-xs font-bold ml-1">ফ্রি</span>
+                  <span className="text-cream/60">🚚 ডেলিভারি চার্জ</span>
+                  <span className="flex items-center gap-2">
+                    <span className="line-through text-cream/40">৳{deliveryValue}</span>
+                    <span className="text-secondary text-xs font-bold">ফ্রি</span>
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-cream/60">হানি ডিপার</span>
-                  <span className="line-through text-cream/40">৳{honeyDipperValue}</span>
-                  <span className="text-secondary text-xs font-bold ml-1">ফ্রি</span>
+                  <span className="text-cream/60">🎁 হানি ডিপার</span>
+                  <span className="flex items-center gap-2">
+                    <span className="line-through text-cream/40">৳{honeyDipperValue}</span>
+                    <span className="text-secondary text-xs font-bold">ফ্রি</span>
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
+                <div className="flex justify-between text-sm mb-2 border-t border-cream/10 pt-2">
                   <span className="text-cream/60">মোট মূল্য</span>
                   <span className="line-through text-cream/40">৳{totalStackValue}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2 text-secondary">
+                  <span>ডিসকাউন্ট</span>
+                  <span className="font-bold">-৳{totalDiscount}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t border-cream/10 pt-2">
                   <span>আজকের অফারে</span>
                   <span className="text-primary">৳{bestPrice}</span>
                 </div>
                 <div className="text-center mt-2">
-                  <Badge className="bg-urgency text-primary-foreground">{savingsPercent}% সাশ্রয়!</Badge>
+                  <Badge className="bg-urgency text-primary-foreground">৳{totalDiscount} সাশ্রয়! ({savingsPercent}%)</Badge>
                 </div>
               </div>
             </div>
