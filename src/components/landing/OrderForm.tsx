@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Truck, Phone, Lock, Plus, Minus } from "lucide-react";
-import { useProductVariations, useDistricts, useSettings } from "@/hooks/useData";
+import { useProductVariations, useSettings } from "@/hooks/useData";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/hooks/useAnalytics";
 import FadeSection from "./FadeSection";
@@ -14,17 +14,21 @@ interface Props {
   selectedProduct?: any;
 }
 
+const DELIVERY_OPTIONS = [
+  { value: "dhaka", label: "ঢাকা" },
+  { value: "outside_dhaka", label: "ঢাকার বাইরে" },
+];
+
 const OrderForm = ({ selectedProduct }: Props) => {
   const navigate = useNavigate();
   const { data: products } = useProductVariations();
-  const { data: districts } = useDistricts();
   const { data: settings } = useSettings();
 
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
-    districtId: "",
+    deliveryZone: "",
     area: "",
     address: "",
     productId: "",
@@ -42,7 +46,6 @@ const OrderForm = ({ selectedProduct }: Props) => {
   // Save partial form data as abandoned cart
   const saveAbandonedCart = useCallback(async (data: typeof formData) => {
     if (submitted.current) return;
-    // Only save if user has entered at least name or phone
     if (!data.name && !data.phone) return;
 
     const payload = {
@@ -50,7 +53,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
       customer_name: data.name.trim() || null,
       phone: data.phone.trim() || null,
       email: data.email.trim() || null,
-      district_id: data.districtId || null,
+      district_id: null,
       area: data.area.trim() || null,
       full_address: data.address.trim() || null,
       product_variation_id: data.productId || null,
@@ -124,12 +127,20 @@ const OrderForm = ({ selectedProduct }: Props) => {
   }, [selectedProduct]);
 
   const selected = products?.find((p: any) => p.id === formData.productId);
-  const selectedDistrict = districts?.find((d: any) => d.id === formData.districtId);
   const unitPrice = selected?.price || 0;
   const subtotal = unitPrice * formData.quantity;
-  const deliveryCharge = selectedDistrict?.delivery_charge ??
-    Number(settings?.delivery_charge_outside_dhaka || 120);
-  const total = subtotal + deliveryCharge;
+
+  const isDhaka = formData.deliveryZone === "dhaka";
+  const deliveryChargeActual = isDhaka
+    ? Number(settings?.delivery_charge_inside_dhaka || 100)
+    : Number(settings?.delivery_charge_outside_dhaka || 150);
+  const freeDeliveryEnabled = settings?.free_delivery_enabled !== "false";
+  const honeyDipperValue = Number(settings?.honey_dipper_value || 80);
+  const discountAmount = Number(settings?.discount_amount || 0);
+
+  // Delivery is free, so actual charge to customer is 0
+  const deliveryCharge = freeDeliveryEnabled ? 0 : deliveryChargeActual;
+  const total = subtotal + deliveryCharge - discountAmount;
 
   const validatePhone = (phone: string) => {
     const cleaned = phone.replace(/\s/g, "");
@@ -151,7 +162,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
       return;
     }
 
-    if (!selected) return;
+    if (!selected || !formData.deliveryZone) return;
 
     setSubmitting(true);
     submitted.current = true;
@@ -162,14 +173,14 @@ const OrderForm = ({ selectedProduct }: Props) => {
         customer_name: formData.name.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim() || null,
-        district_id: formData.districtId || null,
-        area: formData.area.trim() || null,
+        district_id: null,
+        area: `${isDhaka ? "ঢাকা" : "ঢাকার বাইরে"}${formData.area ? ` - ${formData.area.trim()}` : ""}`,
         full_address: formData.address.trim(),
         product_variation_id: selected.id,
         quantity: formData.quantity,
         unit_price: unitPrice,
         delivery_charge: deliveryCharge,
-        total_amount: total,
+        total_amount: total > 0 ? total : subtotal,
         payment_method: formData.paymentMethod,
         ip_address: null,
         user_agent: navigator.userAgent,
@@ -186,9 +197,8 @@ const OrderForm = ({ selectedProduct }: Props) => {
 
       trackEvent("order_placed", { total, product: selected.name });
 
-      const isDhakMetro = selectedDistrict?.is_dhaka_metro || false;
-      const estDays = isDhakMetro ? 1 : (selectedDistrict?.estimated_delivery_days || 3);
-      const estimatedDelivery = isDhakMetro ? "২৪ ঘন্টার মধ্যে" : `${estDays} দিনের মধ্যে`;
+      const estDays = isDhaka ? 1 : 3;
+      const estimatedDelivery = isDhaka ? "২৪ ঘন্টার মধ্যে" : `${estDays} দিনের মধ্যে`;
 
       navigate("/thank-you", {
         state: {
@@ -197,12 +207,12 @@ const OrderForm = ({ selectedProduct }: Props) => {
           address: formData.address,
           product: `${selected.name_bn} (${selected.size_bn})`,
           quantity: formData.quantity,
-          total,
+          total: total > 0 ? total : subtotal,
           deliveryCharge,
           orderNumber: orderData?.order_number || "",
           orderDate: new Date().toLocaleDateString("bn-BD"),
           estimatedDelivery,
-          isDhakMetro,
+          isDhakMetro: isDhaka,
           paymentMethod: formData.paymentMethod,
         },
       });
@@ -274,18 +284,18 @@ const OrderForm = ({ selectedProduct }: Props) => {
                     onChange={(e) => handleFieldChange({ email: e.target.value })} />
                 </div>
 
-                {/* District dropdown */}
+                {/* Delivery Zone dropdown - simplified */}
                 <div>
                   <Label className="text-sm font-semibold">জেলা *</Label>
                   <select
                     required
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
-                    value={formData.districtId}
-                    onChange={(e) => handleFieldChange({ districtId: e.target.value })}
+                    value={formData.deliveryZone}
+                    onChange={(e) => handleFieldChange({ deliveryZone: e.target.value })}
                   >
                     <option value="">জেলা নির্বাচন করুন</option>
-                    {districts?.map((d: any) => (
-                      <option key={d.id} value={d.id}>{d.name_bn}</option>
+                    {DELIVERY_OPTIONS.map((d) => (
+                      <option key={d.value} value={d.value}>{d.label}</option>
                     ))}
                   </select>
                 </div>
@@ -368,20 +378,45 @@ const OrderForm = ({ selectedProduct }: Props) => {
                   </div>
                 </div>
 
-
+                {/* Order Summary */}
                 <div className="bg-muted rounded-xl p-4 space-y-2 border border-border">
                   <p className="font-semibold text-sm mb-2">অর্ডার সামারি</p>
                   <div className="flex justify-between text-sm">
                     <span>{selected?.name_bn} ({selected?.size_bn}) × {formData.quantity}</span>
                     <span>৳{subtotal}</span>
                   </div>
+                  {/* Delivery charge - shown as free */}
+                  {formData.deliveryZone && (
+                    <div className="flex justify-between text-sm">
+                      <span>ডেলিভারি চার্জ ({isDhaka ? "ঢাকা" : "ঢাকার বাইরে"})</span>
+                      {freeDeliveryEnabled ? (
+                        <span className="flex items-center gap-1">
+                          <span className="line-through text-muted-foreground text-xs">৳{deliveryChargeActual}</span>
+                          <span className="text-secondary font-bold text-xs">ফ্রি</span>
+                        </span>
+                      ) : (
+                        <span>৳{deliveryChargeActual}</span>
+                      )}
+                    </div>
+                  )}
+                  {/* Honey dipper - shown as free */}
                   <div className="flex justify-between text-sm">
-                    <span>ডেলিভারি চার্জ</span>
-                    <span>{deliveryCharge === 0 ? <span className="text-secondary font-medium">ফ্রি</span> : `৳${deliveryCharge}`}</span>
+                    <span>🎁 হানি ডিপার</span>
+                    <span className="flex items-center gap-1">
+                      <span className="line-through text-muted-foreground text-xs">৳{honeyDipperValue}</span>
+                      <span className="text-secondary font-bold text-xs">ফ্রি</span>
+                    </span>
                   </div>
+                  {/* Discount if any */}
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-secondary">
+                      <span>ডিসকাউন্ট</span>
+                      <span>-৳{discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-lg border-t border-border pt-2 mt-1">
                     <span>মোট</span>
-                    <span className="text-primary">৳{total}</span>
+                    <span className="text-primary">৳{total > 0 ? total : subtotal}</span>
                   </div>
                 </div>
 
@@ -396,13 +431,13 @@ const OrderForm = ({ selectedProduct }: Props) => {
                       প্রসেসিং...
                     </span>
                   ) : (
-                    "✅ অর্ডার কনফার্ম করুন"
+                    <>👉 অর্ডার কনফার্ম করুন</>
                   )}
                 </Button>
 
-                <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
                   <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> নিরাপদ</span>
-                  <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> দ্রুত ডেলিভারি</span>
+                  <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> ফ্রি ডেলিভারি</span>
                   <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> ২৪/৭ সাপোর্ট</span>
                 </div>
               </form>
