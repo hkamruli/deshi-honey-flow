@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Gift, Truck, Shield, ArrowDown, Sparkles } from "lucide-react";
 import { useBonuses, useProductVariations } from "@/hooks/useData";
+import honeyJarSmall from "@/assets/honey-jar-small.png";
 
 const ValueStack = () => {
   const { data: bonuses } = useBonuses();
@@ -36,13 +37,26 @@ const ValueStack = () => {
   return (
     <FadeSection>
       <section className="py-16 md:py-24" style={{ background: "linear-gradient(160deg, hsl(25 20% 8%) 0%, hsl(16 60% 18%) 100%)" }}>
-        <div className="container mx-auto px-4 max-w-lg text-center">
-          <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
-            🎁 বিশেষ অফার
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 text-cream">
-            আজ অর্ডার করলে যা যা পাচ্ছেন
-          </h2>
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="text-center">
+            <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              🎁 বিশেষ অফার
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-cream">
+              আজ অর্ডার করলে যা যা পাচ্ছেন
+            </h2>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center gap-8">
+          {/* Honey jar visual */}
+          <div className="hidden md:block flex-shrink-0">
+            <div className="relative w-40 h-40">
+              <img src={honeyJarSmall} alt="খাঁটি মধু" className="w-full h-full object-contain drop-shadow-xl" loading="lazy" />
+              <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-2xl scale-90" />
+            </div>
+          </div>
+
+          <div className="flex-1 max-w-lg mx-auto md:mx-0">
 
           <div className="space-y-3 text-left mb-8">
             {allItems.map((item, i) => (
@@ -70,14 +84,18 @@ const ValueStack = () => {
             </div>
           </div>
 
-          <Button
-            onClick={scrollToOrder}
-            size="lg"
-            className="bg-gradient-cta text-primary-foreground font-bold text-base px-10 py-7 rounded-full glow-cta hover:scale-105 transition-all animate-pulse-glow"
-          >
-            👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
-            <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
-          </Button>
+          <div className="text-center">
+            <Button
+              onClick={scrollToOrder}
+              size="lg"
+              className="bg-gradient-cta text-primary-foreground font-bold text-base px-10 py-7 rounded-full glow-cta hover:scale-105 transition-all animate-pulse-glow"
+            >
+              👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
+              <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
+            </Button>
+          </div>
+          </div>
+          </div>
         </div>
       </section>
     </FadeSection>

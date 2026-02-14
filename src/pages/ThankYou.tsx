@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, MessageCircle, ArrowLeft, Package, Truck, Phone, PartyPopper, Mail, PhoneCall } from "lucide-react";
 import { useSettings } from "@/hooks/useData";
+import honeySplash from "@/assets/honey-splash.png";
 
 interface OrderState {
   name: string;
@@ -37,7 +38,13 @@ const ThankYou = () => {
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4 honeycomb-pattern relative overflow-hidden">
-      {/* Honey splash background accents */}
+      {/* Honey splash background accent */}
+      <img
+        src={honeySplash}
+        alt=""
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] max-w-[90vw] opacity-[0.08] pointer-events-none select-none"
+        aria-hidden="true"
+      />
       <div className="absolute top-0 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-primary/8 blur-3xl translate-x-1/3 translate-y-1/3" />
       <div className="absolute top-1/4 right-10 text-6xl opacity-10 animate-bee pointer-events-none">🐝</div>
