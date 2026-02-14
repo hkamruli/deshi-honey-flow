@@ -14,7 +14,288 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bonuses: {
+        Row: {
+          created_at: string
+          display_mode: string
+          id: string
+          is_active: boolean
+          name: string
+          name_bn: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          display_mode?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          name_bn: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          display_mode?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_bn?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      districts: {
+        Row: {
+          created_at: string
+          delivery_charge: number
+          id: string
+          is_active: boolean
+          name: string
+          name_bn: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_charge?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          name_bn: string
+        }
+        Update: {
+          created_at?: string
+          delivery_charge?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_bn?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          area: string | null
+          created_at: string
+          customer_name: string
+          delivery_charge: number
+          district_id: string | null
+          email: string | null
+          full_address: string
+          id: string
+          ip_address: string | null
+          order_number: string
+          phone: string
+          product_variation_id: string
+          quantity: number
+          referrer_url: string | null
+          status: string
+          total_amount: number
+          unit_price: number
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string
+          customer_name: string
+          delivery_charge?: number
+          district_id?: string | null
+          email?: string | null
+          full_address: string
+          id?: string
+          ip_address?: string | null
+          order_number: string
+          phone: string
+          product_variation_id: string
+          quantity?: number
+          referrer_url?: string | null
+          status?: string
+          total_amount: number
+          unit_price: number
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          area?: string | null
+          created_at?: string
+          customer_name?: string
+          delivery_charge?: number
+          district_id?: string | null
+          email?: string | null
+          full_address?: string
+          id?: string
+          ip_address?: string | null
+          order_number?: string
+          phone?: string
+          product_variation_id?: string
+          quantity?: number
+          referrer_url?: string | null
+          status?: string
+          total_amount?: number
+          unit_price?: number
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_product_variation_id_fkey"
+            columns: ["product_variation_id"]
+            isOneToOne: false
+            referencedRelation: "product_variations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variations: {
+        Row: {
+          badge: string | null
+          badge_bn: string | null
+          bonus_ids: Json | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          name_bn: string
+          original_price: number | null
+          per_unit_label: string | null
+          price: number
+          size: string
+          size_bn: string
+          sort_order: number
+        }
+        Insert: {
+          badge?: string | null
+          badge_bn?: string | null
+          bonus_ids?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          name_bn: string
+          original_price?: number | null
+          per_unit_label?: string | null
+          price: number
+          size: string
+          size_bn: string
+          sort_order?: number
+        }
+        Update: {
+          badge?: string | null
+          badge_bn?: string | null
+          bonus_ids?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_bn?: string
+          original_price?: number | null
+          per_unit_label?: string | null
+          price?: number
+          size?: string
+          size_bn?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          district: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          name: string
+          photo_url: string | null
+          rating: number
+          review_text: string
+        }
+        Insert: {
+          created_at?: string
+          district: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          name: string
+          photo_url?: string | null
+          rating?: number
+          review_text: string
+        }
+        Update: {
+          created_at?: string
+          district?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          name?: string
+          photo_url?: string | null
+          rating?: number
+          review_text?: string
+        }
+        Relationships: []
+      }
+      visitor_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          page_url: string | null
+          referrer_url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
