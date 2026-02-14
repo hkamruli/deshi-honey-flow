@@ -5,13 +5,13 @@ import { ArrowDown } from "lucide-react";
 import AnimatedBee from "./AnimatedBee";
 import FloatingPollen from "./FloatingPollen";
 import honeyJarHero from "@/assets/honey-jar-hero.png";
+import logo from "@/assets/logo.png";
 
 const HeroSection = () => {
   const scrollToOrder = () => {
     document.getElementById("order-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // 24-hour reset timer
   const getTimeLeft = () => {
     const now = new Date();
     const endOfDay = new Date(now);
@@ -40,6 +40,11 @@ const HeroSection = () => {
     >
       <FloatingPollen />
       <AnimatedBee />
+
+      {/* Logo at top-left corner */}
+      <div className="absolute top-4 left-4 z-30">
+        <img src={logo} alt="Fresh Foods Logo" className="w-14 h-14 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
+      </div>
 
       {/* Radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px]" />
@@ -104,7 +109,7 @@ const HeroSection = () => {
               <div className="relative w-56 h-72 md:w-72 md:h-[360px]">
                 <img
                   src={honeyJarHero}
-                  alt="দেশি ফুডস খাঁটি মধু"
+                  alt="Fresh Foods - Natural Honey"
                   className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
                   loading="eager"
                 />

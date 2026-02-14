@@ -17,7 +17,15 @@ interface OrderState {
   orderDate: string;
   estimatedDelivery: string;
   isDhakMetro: boolean;
+  paymentMethod?: string;
 }
+
+const PAYMENT_LABELS: Record<string, string> = {
+  cod: "ক্যাশ অন ডেলিভারি",
+  mfs: "মোবাইল ব্যাংকিং",
+  card: "কার্ড পেমেন্ট",
+  bank: "ব্যাংক ট্রান্সফার",
+};
 
 const ThankYou = () => {
   const location = useLocation();
@@ -77,7 +85,7 @@ const ThankYou = () => {
               <div className="flex justify-between"><span className="text-muted-foreground">পণ্য</span><span className="font-medium">{order.product}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">পরিমাণ</span><span className="font-medium">{order.quantity}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">ডেলিভারি</span><span className="font-medium">৳{order.deliveryCharge}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">পেমেন্ট</span><span className="font-medium">Cash on Delivery</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">পেমেন্ট</span><span className="font-medium">{PAYMENT_LABELS[order.paymentMethod || "cod"] || "ক্যাশ অন ডেলিভারি"}</span></div>
               {order.orderDate && (
                 <div className="flex justify-between"><span className="text-muted-foreground">তারিখ</span><span className="font-medium">{order.orderDate}</span></div>
               )}
