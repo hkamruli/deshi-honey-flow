@@ -99,16 +99,18 @@ const HeroSection = () => {
 
           {/* Right: Honey jar */}
           <div className="flex justify-center md:justify-end">
-            <div className="relative w-64 h-80 md:w-72 md:h-[360px]">
-              <img
-                src={honeyJarHero}
-                alt="দেশি ফুডস খাঁটি মধু"
-                className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
-                loading="eager"
-              />
-              <div className="absolute inset-0 -z-10 rounded-full bg-primary/15 blur-3xl scale-90" />
+            <div className="relative rounded-2xl overflow-hidden p-6 md:p-8"
+              style={{ background: "linear-gradient(145deg, hsl(35 60% 30% / 0.5) 0%, hsl(25 50% 20% / 0.6) 100%)", boxShadow: "inset 0 2px 20px hsl(35 80% 50% / 0.15), 0 8px 32px hsl(0 0% 0% / 0.3)" }}>
+              <div className="relative w-56 h-72 md:w-72 md:h-[360px]">
+                <img
+                  src={honeyJarHero}
+                  alt="দেশি ফুডস খাঁটি মধু"
+                  className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
+                  loading="eager"
+                />
+              </div>
               {/* Discount badge */}
-              <div className="absolute bottom-6 right-0 bg-urgency/90 text-primary-foreground px-3 py-1.5 rounded-lg shadow-lg text-center">
+              <div className="absolute bottom-4 right-4 bg-urgency/90 text-primary-foreground px-3 py-1.5 rounded-lg shadow-lg text-center">
                 <p className="text-[10px] leading-none mb-0.5">বিশেষ অফার</p>
                 <p className="text-lg font-extrabold leading-none">৪৪% ছাড়</p>
               </div>
