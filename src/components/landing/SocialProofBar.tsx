@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { Star, Users, ShieldCheck, Truck } from "lucide-react";
 
-const SocialProofBar = () => {
+const SocialProofBar = memo(() => {
   return (
     <section className="bg-card border-y border-border py-5">
       <div className="container mx-auto px-4 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-medium text-foreground">
@@ -27,6 +28,8 @@ const SocialProofBar = () => {
       </div>
     </section>
   );
-};
+});
+
+SocialProofBar.displayName = "SocialProofBar";
 
 export default SocialProofBar;

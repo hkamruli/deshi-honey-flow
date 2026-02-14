@@ -1,4 +1,6 @@
-const HoneyDripDivider = () => {
+import { memo } from "react";
+
+const HoneyDripDivider = memo(() => {
   return (
     <div className="relative h-12 -mt-1 overflow-hidden">
       <svg
@@ -19,6 +21,8 @@ const HoneyDripDivider = () => {
       </svg>
     </div>
   );
-};
+});
+
+HoneyDripDivider.displayName = "HoneyDripDivider";
 
 export default HoneyDripDivider;
