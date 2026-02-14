@@ -15,6 +15,7 @@ import {
   Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoImg from "@/assets/logo.png";
 
 type NavItem = {
   id: string;
@@ -59,10 +60,11 @@ const AdminSidebar = ({ activeSection, onSectionChange }: Props) => {
       {/* Brand */}
       <div className="p-4 border-b border-border/50">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🍯</span>
+          <img src={logoImg} alt="Logo" className="w-8 h-8 rounded-full object-cover shrink-0" />
           {!collapsed && (
             <div className="overflow-hidden">
-              <h2 className="text-sm font-bold leading-tight truncate">আডমিন প্যানেল</h2>
+              <h2 className="text-sm font-bold leading-tight truncate">দেশি ফুডস</h2>
+              <p className="text-[10px] text-muted-foreground">আডমিন প্যানেল</p>
             </div>
           )}
         </div>
