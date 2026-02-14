@@ -1,87 +1,34 @@
 
-# দেশি ফুডস (Deshi Foods) — Premium Honey Landing Page
 
-## Overview
-A high-converting, single-page Bangla landing page for a premium natural honey brand with a **Natural & Earthy** design style (green, amber, brown tones) and maximum conversion elements. Frontend-only — order form submits via WhatsApp with a confirmation/thank you view. Placeholder pricing used until finalized.
+# Hero Product Image Redesign
 
----
+## What Changes
 
-## Pages & Flow
+### 1. Generate New Hero Jar Image
+Use AI image generation to create a premium, realistic 3D honey jar with:
+- Glass jar filled with golden honey
+- Label reading "Deshi Foods - Natural Honey" (English branding)
+- Warm, honey-gold studio background with soft lighting
+- Cork or wooden lid for organic feel
+- Honey drip details on the jar
+- Cinematic warm lighting with natural shadows
 
-### 1. Landing Page (Single Scroll Page)
+### 2. Update Hero Image Container
+Redesign the right side of the hero to match the reference layout:
+- Add a **rounded-2xl container** with a warm background behind the product image (similar to the reference)
+- The container will have a subtle warm gradient background that blends with the hero section
+- Slight shadow and border-radius for a card-like presentation
+- The discount badge will overlay on this container
+- On mobile, the container will be centered and slightly smaller
 
-**Hero Section**
-- Full-width hero with nature/honey-themed background gradient
-- Brand name "দেশি ফুডস" prominently displayed in Bangla
-- Bold headline: e.g. "সুন্দরবন ও সিলেটের খাঁটি মধু — সরাসরি আপনার ঘরে"
-- Sub-headline highlighting purity and health benefits
-- Primary CTA button scrolling to order form
-- Urgency badge (e.g. "সীমিত স্টক!")
+### Technical Details
 
-**Social Proof Bar**
-- Order count indicator (e.g. "৫০০০+ পরিবার আমাদের বিশ্বাস করে")
-- Star ratings display
+**Files to modify:**
+- `src/assets/honey-jar-hero.png` -- regenerate with new AI prompt for a 3D realistic jar with warm background and "Deshi Foods - Natural Honey" branding
+- `src/components/landing/HeroSection.tsx` -- update the image container to use a rounded card with warm background, matching the reference style
 
-**Benefits Section**
-- 3-4 benefit cards with icons: 100% খাঁটি, প্রাকৃতিক, স্বাস্থ্যকর, কোনো মিশ্রণ নেই
-- Clean grid layout with earthy icons
+**Image container styling changes:**
+- Wrap the `img` in a container with `rounded-2xl overflow-hidden` and a warm amber/gold background
+- Add subtle inner shadow for depth
+- Keep the discount badge overlaying the bottom-right of the container
 
-**Sourcing Story**
-- How the honey is collected from Sundarbans & Sylhet
-- Trust-building imagery placeholders and descriptive Bangla text
-
-**Product Options**
-- Cards for product variants (placeholder: 500g, 1kg, combo pack)
-- Pricing placeholders with each option
-- "অর্ডার করুন" CTA on each card
-
-**Customer Testimonials**
-- 3-4 Bangla testimonials with names and locations
-- Star ratings and trust elements
-
-**FAQ Accordion**
-- Common questions in Bangla (purity, delivery time, payment, returns)
-
-**Sticky CTA**
-- Floating "অর্ডার করুন" button visible while scrolling
-
-**Countdown/Urgency Timer**
-- Limited-time offer banner with countdown timer
-
----
-
-### 2. Order Form (Inline Section or Modal)
-
-- Fields: নাম, ফোন নম্বর, ঠিকানা, পণ্য নির্বাচন, পরিমাণ
-- Payment method: Cash on Delivery (COD) pre-selected
-- Order summary with total price
-- "অর্ডার কনফার্ম করুন" submit button
-- On submit: opens WhatsApp with pre-filled order message OR shows thank you page
-
----
-
-### 3. Thank You Page
-
-- Confirmation message in Bangla: "আপনার অর্ডার সফলভাবে গ্রহণ করা হয়েছে!"
-- Order summary recap
-- Delivery timeline info
-- WhatsApp contact link for support
-- Social sharing prompt
-
----
-
-## Design Direction
-- **Colors**: Amber/gold, forest green, warm brown, cream backgrounds
-- **Typography**: Clean, readable Bangla-friendly fonts
-- **Imagery**: Placeholder spots for honey jars, nature, bees
-- **Feel**: Organic, trustworthy, premium-but-approachable
-- **Mobile-first**: Optimized for phone users (primary audience)
-
----
-
-## Technical Notes
-- No backend/database — purely frontend React app
-- WhatsApp integration for order submission via URL scheme
-- Smooth scroll navigation between sections
-- Responsive design prioritizing mobile
-- All text in Bangla
