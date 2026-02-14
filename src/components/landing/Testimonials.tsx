@@ -3,27 +3,45 @@ import { Star, BadgeCheck } from "lucide-react";
 import { useTestimonials } from "@/hooks/useData";
 import FadeSection from "./FadeSection";
 
-// Review section avatars (realistic people)
-const REVIEW_AVATARS = [
+// Male avatars
+const MALE_AVATARS = [
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+];
+
+// Female avatars
+const FEMALE_AVATARS = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
 ];
 
-// Popup avatars (different set so they never match reviews)
-const POPUP_AVATARS = [
+// Popup male avatars (different from review set)
+const POPUP_MALE_AVATARS = [
   "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?w=100&h=100&fit=crop&crop=face",
+];
+
+// Popup female avatars (different from review set)
+const POPUP_FEMALE_AVATARS = [
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face",
 ];
+
+// Bengali female name keywords
+const FEMALE_NAME_HINTS = ["ফাতেমা", "সুমাইয়া", "নাসরিন", "রুমানা", "তাসনিম", "সাবিনা", "মিতু", "ফারজানা", "বেগম", "আক্তার", "জাহান", "পারভীন", "ফারিয়া", "ইয়াসমিন", "আলম", "রাহেলা", "ফাতিমা", "সুমি"];
+
+const isFemale = (name: string) => FEMALE_NAME_HINTS.some((hint) => name.includes(hint));
+
+const getReviewAvatar = (name: string, index: number) => {
+  const pool = isFemale(name) ? FEMALE_AVATARS : MALE_AVATARS;
+  return pool[index % pool.length];
+};
 
 const Testimonials = () => {
   const { data: testimonials, isLoading } = useTestimonials();
@@ -63,10 +81,13 @@ const Testimonials = () => {
     const districts = ["ঢাকা", "চট্টগ্রাম", "সিলেট", "রাজশাহী", "খুলনা", "গাজীপুর"];
 
     const show = () => {
+      const name = names[Math.floor(Math.random() * names.length)];
+      const female = isFemale(name);
+      const pool = female ? POPUP_FEMALE_AVATARS : POPUP_MALE_AVATARS;
       setRecentOrder({
-        name: names[Math.floor(Math.random() * names.length)],
+        name,
         district: districts[Math.floor(Math.random() * districts.length)],
-        avatar: POPUP_AVATARS[Math.floor(Math.random() * POPUP_AVATARS.length)],
+        avatar: pool[Math.floor(Math.random() * pool.length)],
       });
       setTimeout(() => setRecentOrder(null), 4000);
     };
@@ -157,7 +178,7 @@ const Testimonials = () => {
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
                      <img
-                       src={REVIEW_AVATARS[i % REVIEW_AVATARS.length]}
+                       src={getReviewAvatar(t.name, i)}
                        alt={t.name}
                        className="w-8 h-8 rounded-full object-cover"
                      />
