@@ -355,36 +355,16 @@ const OrderForm = ({ selectedProduct }: Props) => {
                   </div>
                 </div>
 
-                {/* Payment Method */}
-                <div>
-                  <Label className="text-sm font-semibold mb-2 block">পেমেন্ট পদ্ধতি</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { value: "cod", label: "💵 ক্যাশ অন ডেলিভারি", short: "COD" },
-                      { value: "mfs", label: "📱 মোবাইল ব্যাংকিং", short: "bKash/Nagad" },
-                      { value: "card", label: "💳 কার্ড পেমেন্ট", short: "Visa/Master" },
-                      { value: "bank", label: "🏦 ব্যাংক ট্রান্সফার", short: "Bank" },
-                    ].map((pm) => (
-                      <label
-                        key={pm.value}
-                        className={`cursor-pointer rounded-xl border-2 p-2.5 text-center transition-all ${
-                          formData.paymentMethod === pm.value
-                            ? "border-primary bg-primary/5 shadow-md"
-                            : "border-border hover:border-primary/30"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value={pm.value}
-                          checked={formData.paymentMethod === pm.value}
-                          onChange={() => handleFieldChange({ paymentMethod: pm.value })}
-                          className="sr-only"
-                        />
-                        <p className="font-bold text-xs">{pm.label}</p>
-                        <p className="text-[10px] text-muted-foreground">{pm.short}</p>
-                      </label>
-                    ))}
+                {/* Payment Method - Cash on Delivery only */}
+                <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-lg">💵</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">ক্যাশ অন ডেলিভারি (COD)</p>
+                      <p className="text-[11px] text-muted-foreground">পণ্য হাতে পেয়ে পেমেন্ট করুন</p>
+                    </div>
                   </div>
                 </div>
 
