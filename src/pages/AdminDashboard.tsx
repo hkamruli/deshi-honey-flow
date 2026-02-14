@@ -60,17 +60,44 @@ const AdminDashboard = () => {
     todayStart.setHours(0, 0, 0, 0);
     const todaySince = todayStart.toISOString();
 
-    const [{ data: periodOrders }, { data: recent }, { data: todayVisitors }, { data: totalVisitors }] = await Promise.all([
-      supabase.from("orders").select("total_amount, delivery_charge, status").gte("created_at", since),
+    const [{ data: periodOrders }, { data: recent }, { data: todayVisitors }, { data: totalVisitors }, { data: settingsData }] = await Promise.all([
+      supabase.from("orders").select("total_amount, delivery_charge, status, unit_price, quantity").gte("created_at", since),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(10),
       supabase.from("visitor_analytics").select("session_id").eq("event_type", "page_view").gte("created_at", todaySince),
       supabase.from("visitor_analytics").select("session_id").eq("event_type", "page_view").gte("created_at", since),
+      supabase.from("settings").select("key, value"),
     ]);
+
+    const settingsMap: Record<string, string> = {};
+    (settingsData || []).forEach((s: any) => { settingsMap[s.key] = s.value; });
 
     const allOrders = periodOrders || [];
     const activeOrders = allOrders.filter((o: any) => o.status !== "cancelled");
     const revenue = activeOrders.reduce((s: number, o: any) => s + o.total_amount, 0);
     const deliveryRevenue = activeOrders.reduce((s: number, o: any) => s + (o.delivery_charge || 0), 0);
+
+    // Calculate total discount given & free delivery given
+    const discountPerOrder = Number(settingsMap.discount_amount || 0);
+    const freeDeliveryEnabled = settingsMap.free_delivery_enabled !== "false";
+    const insideDhaka = Number(settingsMap.delivery_charge_inside_dhaka || 100);
+    const outsideDhaka = Number(settingsMap.delivery_charge_outside_dhaka || 150);
+    
+    // Total discount = (original_price - price) * qty for each active order + discount_amount per order
+    const totalDiscountGiven = activeOrders.reduce((s: number, o: any) => {
+      return s + (discountPerOrder * o.quantity);
+    }, 0);
+    
+    // Total free delivery = sum of delivery charges waived for active orders
+    const totalFreeDeliveryGiven = freeDeliveryEnabled
+      ? activeOrders.reduce((s: number, o: any) => {
+          // If delivery_charge is 0 and free delivery is enabled, estimate the waived amount
+          if (o.delivery_charge === 0) {
+            // Use average of inside/outside dhaka as estimate
+            return s + outsideDhaka; 
+          }
+          return s;
+        }, 0)
+      : 0;
 
     // Unique daily visitors by session_id
     const uniqueTodayVisitors = new Set((todayVisitors || []).map((v: any) => v.session_id)).size;
@@ -86,6 +113,8 @@ const AdminDashboard = () => {
       totalOrders: allOrders.length,
       revenue,
       deliveryRevenue,
+      totalDiscountGiven,
+      totalFreeDeliveryGiven,
       pending: allOrders.filter((o: any) => o.status === "pending").length,
       confirmed: allOrders.filter((o: any) => o.status === "confirmed").length,
       processing: allOrders.filter((o: any) => o.status === "processing").length,
