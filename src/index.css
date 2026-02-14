@@ -229,4 +229,30 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Bee CSS animations - no JS re-renders */
+  @keyframes bee-float-x {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(40px); }
+  }
+
+  @keyframes bee-float-y {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-25px); }
+  }
+
+  @keyframes bee-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* CTA pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px hsl(160 84% 39% / 0.3); }
+    50% { box-shadow: 0 0 35px hsl(160 84% 39% / 0.5); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
 }

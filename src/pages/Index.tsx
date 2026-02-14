@@ -1,19 +1,23 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useVisitorAnalytics, useScrollTracking } from "@/hooks/useAnalytics";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofBar from "@/components/landing/SocialProofBar";
-import ProblemSection from "@/components/landing/ProblemSection";
-import SolutionSection from "@/components/landing/SolutionSection";
-import SourcingStory from "@/components/landing/SourcingStory";
-import Testimonials from "@/components/landing/Testimonials";
-import ValueStack from "@/components/landing/ValueStack";
-import CountdownTimer from "@/components/landing/CountdownTimer";
-import ProductOptions from "@/components/landing/ProductOptions";
-import FAQSection from "@/components/landing/FAQSection";
-import OrderForm from "@/components/landing/OrderForm";
 import HoneyDripDivider from "@/components/landing/HoneyDripDivider";
-import StickyCTA from "@/components/landing/StickyCTA";
-import Footer from "@/components/landing/Footer";
+
+// Lazy load below-fold components
+const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
+const SolutionSection = lazy(() => import("@/components/landing/SolutionSection"));
+const SourcingStory = lazy(() => import("@/components/landing/SourcingStory"));
+const Testimonials = lazy(() => import("@/components/landing/Testimonials"));
+const ValueStack = lazy(() => import("@/components/landing/ValueStack"));
+const CountdownTimer = lazy(() => import("@/components/landing/CountdownTimer"));
+const ProductOptions = lazy(() => import("@/components/landing/ProductOptions"));
+const FAQSection = lazy(() => import("@/components/landing/FAQSection"));
+const OrderForm = lazy(() => import("@/components/landing/OrderForm"));
+const Footer = lazy(() => import("@/components/landing/Footer"));
+const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
+
+const LazyFallback = () => <div className="min-h-[200px]" />;
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -25,21 +29,23 @@ const Index = () => {
       <HeroSection />
       <SocialProofBar />
       <HoneyDripDivider />
-      <ProblemSection />
-      <HoneyDripDivider />
-      <SolutionSection />
-      <SourcingStory />
-      <HoneyDripDivider />
-      <Testimonials />
-      <HoneyDripDivider />
-      <ValueStack />
-      <CountdownTimer />
-      <ProductOptions onSelectProduct={setSelectedProduct} />
-      <HoneyDripDivider />
-      <FAQSection />
-      <OrderForm selectedProduct={selectedProduct} />
-      <Footer />
-      <StickyCTA />
+      <Suspense fallback={<LazyFallback />}>
+        <ProblemSection />
+        <HoneyDripDivider />
+        <SolutionSection />
+        <SourcingStory />
+        <HoneyDripDivider />
+        <Testimonials />
+        <HoneyDripDivider />
+        <ValueStack />
+        <CountdownTimer />
+        <ProductOptions onSelectProduct={setSelectedProduct} />
+        <HoneyDripDivider />
+        <FAQSection />
+        <OrderForm selectedProduct={selectedProduct} />
+        <Footer />
+        <StickyCTA />
+      </Suspense>
     </main>
   );
 };

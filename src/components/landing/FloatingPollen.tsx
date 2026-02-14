@@ -1,10 +1,12 @@
-const FloatingPollen = () => {
+import { memo } from "react";
+
+const FloatingPollen = memo(() => {
   const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    size: 3 + Math.random() * 5,
-    delay: `${Math.random() * 6}s`,
+    left: `${(i * 8.3) % 100}%`,
+    top: `${(i * 7.7 + 10) % 100}%`,
+    size: 3 + (i % 3) * 2,
+    delay: `${(i * 0.5) % 6}s`,
     anim: i % 2 === 0 ? "animate-pollen" : "animate-pollen-2",
   }));
 
@@ -25,6 +27,8 @@ const FloatingPollen = () => {
       ))}
     </div>
   );
-};
+});
+
+FloatingPollen.displayName = "FloatingPollen";
 
 export default FloatingPollen;

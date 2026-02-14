@@ -117,11 +117,12 @@ const Testimonials = () => {
       <section className="py-16 md:py-24 bg-muted/30 honeycomb-pattern relative overflow-hidden">
         {/* Recent order popup */}
          {recentOrder && (
-           <div className="fixed bottom-20 left-4 z-50 bg-card border border-border rounded-xl shadow-xl p-3 flex items-center gap-3 animate-fade-in max-w-[280px]">
+            <div className="fixed bottom-20 left-4 z-50 bg-card border border-border rounded-xl shadow-xl p-3 flex items-center gap-3 animate-fade-in max-w-[280px]">
              <img
                src={recentOrder.avatar}
                alt=""
                className="w-10 h-10 rounded-full object-cover shrink-0"
+               loading="lazy"
              />
              <div className="text-xs">
                <p className="font-semibold">{recentOrder.name} ({recentOrder.district})</p>
@@ -181,6 +182,7 @@ const Testimonials = () => {
                        src={getReviewAvatar(t.name, i)}
                        alt={t.name}
                        className="w-8 h-8 rounded-full object-cover"
+                       loading="lazy"
                      />
                      <div>
                        <p className="font-semibold text-xs">{t.name}</p>
