@@ -3,12 +3,26 @@ import { Star, BadgeCheck } from "lucide-react";
 import { useTestimonials } from "@/hooks/useData";
 import FadeSection from "./FadeSection";
 
-const AVATAR_COLORS = [
-  "bg-primary/20 text-primary",
-  "bg-secondary/20 text-secondary",
-  "bg-accent/20 text-accent-foreground",
-  "bg-urgency/20 text-urgency",
-  "bg-forest/20 text-forest-light",
+// Review section avatars (realistic people)
+const REVIEW_AVATARS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+];
+
+// Popup avatars (different set so they never match reviews)
+const POPUP_AVATARS = [
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face",
 ];
 
 const Testimonials = () => {
@@ -42,7 +56,7 @@ const Testimonials = () => {
   }, [testimonials, isPaused]);
 
   // Recent order popup
-  const [recentOrder, setRecentOrder] = useState<{ name: string; district: string } | null>(null);
+  const [recentOrder, setRecentOrder] = useState<{ name: string; district: string; avatar: string } | null>(null);
 
   useEffect(() => {
     const names = ["রাহেলা", "করিম", "ফাতিমা", "জাহিদ", "নাসরিন", "সাকিব", "তানভীর", "সুমি"];
@@ -52,6 +66,7 @@ const Testimonials = () => {
       setRecentOrder({
         name: names[Math.floor(Math.random() * names.length)],
         district: districts[Math.floor(Math.random() * districts.length)],
+        avatar: POPUP_AVATARS[Math.floor(Math.random() * POPUP_AVATARS.length)],
       });
       setTimeout(() => setRecentOrder(null), 4000);
     };
@@ -80,15 +95,19 @@ const Testimonials = () => {
     <FadeSection>
       <section className="py-16 md:py-24 bg-muted/30 honeycomb-pattern relative overflow-hidden">
         {/* Recent order popup */}
-        {recentOrder && (
-          <div className="fixed bottom-20 left-4 z-50 bg-card border border-border rounded-xl shadow-xl p-3 flex items-center gap-3 animate-fade-in max-w-[280px]">
-            <div className="text-2xl">🍯</div>
-            <div className="text-xs">
-              <p className="font-semibold">{recentOrder.name} ({recentOrder.district})</p>
-              <p className="text-muted-foreground">এইমাত্র অর্ডার করেছেন!</p>
-            </div>
-          </div>
-        )}
+         {recentOrder && (
+           <div className="fixed bottom-20 left-4 z-50 bg-card border border-border rounded-xl shadow-xl p-3 flex items-center gap-3 animate-fade-in max-w-[280px]">
+             <img
+               src={recentOrder.avatar}
+               alt=""
+               className="w-10 h-10 rounded-full object-cover shrink-0"
+             />
+             <div className="text-xs">
+               <p className="font-semibold">{recentOrder.name} ({recentOrder.district})</p>
+               <p className="text-muted-foreground">এইমাত্র অর্ডার করেছেন!</p>
+             </div>
+           </div>
+         )}
 
         <div className="container mx-auto px-4">
           <div className="text-center mb-6">
@@ -135,23 +154,25 @@ const Testimonials = () => {
                   ))}
                 </div>
                 <p className="text-sm text-foreground mb-4 leading-relaxed line-clamp-4">"{t.review_text}"</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}>
-                      {t.name[0]}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-xs">{t.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{t.district}</p>
-                    </div>
-                  </div>
-                  {t.is_verified && (
-                    <div className="flex items-center gap-1 text-secondary text-[10px] font-medium">
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                      <span>Verified</span>
-                    </div>
-                  )}
-                </div>
+                 <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-2">
+                     <img
+                       src={REVIEW_AVATARS[i % REVIEW_AVATARS.length]}
+                       alt={t.name}
+                       className="w-8 h-8 rounded-full object-cover"
+                     />
+                     <div>
+                       <p className="font-semibold text-xs">{t.name}</p>
+                       <p className="text-[10px] text-muted-foreground">{t.district}</p>
+                     </div>
+                   </div>
+                   {t.is_verified && (
+                     <div className="flex items-center gap-1 text-secondary text-[10px] font-medium">
+                       <BadgeCheck className="h-3.5 w-3.5" />
+                       <span>Verified Purchase</span>
+                     </div>
+                   )}
+                 </div>
               </div>
             ))}
           </div>
