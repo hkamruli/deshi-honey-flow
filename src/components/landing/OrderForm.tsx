@@ -29,6 +29,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
     address: "",
     productId: "",
     quantity: 1,
+    paymentMethod: "cod",
   });
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState("");
@@ -169,6 +170,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
         unit_price: unitPrice,
         delivery_charge: deliveryCharge,
         total_amount: total,
+        payment_method: formData.paymentMethod,
         ip_address: null,
         user_agent: navigator.userAgent,
         referrer_url: document.referrer || null,
@@ -201,6 +203,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
           orderDate: new Date().toLocaleDateString("bn-BD"),
           estimatedDelivery,
           isDhakMetro,
+          paymentMethod: formData.paymentMethod,
         },
       });
     } catch (err) {
@@ -352,7 +355,40 @@ const OrderForm = ({ selectedProduct }: Props) => {
                   </div>
                 </div>
 
-                {/* Order summary */}
+                {/* Payment Method */}
+                <div>
+                  <Label className="text-sm font-semibold mb-2 block">পেমেন্ট পদ্ধতি</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: "cod", label: "💵 ক্যাশ অন ডেলিভারি", short: "COD" },
+                      { value: "mfs", label: "📱 মোবাইল ব্যাংকিং", short: "bKash/Nagad" },
+                      { value: "card", label: "💳 কার্ড পেমেন্ট", short: "Visa/Master" },
+                      { value: "bank", label: "🏦 ব্যাংক ট্রান্সফার", short: "Bank" },
+                    ].map((pm) => (
+                      <label
+                        key={pm.value}
+                        className={`cursor-pointer rounded-xl border-2 p-2.5 text-center transition-all ${
+                          formData.paymentMethod === pm.value
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : "border-border hover:border-primary/30"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={pm.value}
+                          checked={formData.paymentMethod === pm.value}
+                          onChange={() => handleFieldChange({ paymentMethod: pm.value })}
+                          className="sr-only"
+                        />
+                        <p className="font-bold text-xs">{pm.label}</p>
+                        <p className="text-[10px] text-muted-foreground">{pm.short}</p>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+
                 <div className="bg-muted rounded-xl p-4 space-y-2 border border-border">
                   <p className="font-semibold text-sm mb-2">অর্ডার সামারি</p>
                   <div className="flex justify-between text-sm">

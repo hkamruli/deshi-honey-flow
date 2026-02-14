@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Printer, Download, Phone, MapPin, User, Package, Calendar } from "lucide-react";
+import { Printer, Download, Phone, MapPin, User, Package, Calendar, CreditCard } from "lucide-react";
 import type { OrderRow } from "./OrderTable";
 
 interface Props {
@@ -22,80 +22,149 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-const generateInvoiceHTML = (order: OrderRow) => `
+const PAYMENT_LABELS: Record<string, string> = {
+  cod: "ক্যাশ অন ডেলিভারি (COD)",
+  mfs: "মোবাইল ব্যাংকিং (bKash/Nagad)",
+  card: "কার্ড পেমেন্ট (Visa/Master)",
+  bank: "ব্যাংক ট্রান্সফার",
+};
+
+const PAYMENT_LABELS_EN: Record<string, string> = {
+  cod: "Cash on Delivery (COD)",
+  mfs: "Mobile Banking (bKash/Nagad)",
+  card: "Card Payment (Visa/Master)",
+  bank: "Bank Transfer",
+};
+
+const generateInvoiceHTML = (order: OrderRow) => {
+  const paymentLabel = PAYMENT_LABELS[order.payment_method || "cod"] || "ক্যাশ অন ডেলিভারি (COD)";
+  const paymentLabelEn = PAYMENT_LABELS_EN[order.payment_method || "cod"] || "Cash on Delivery (COD)";
+  
+  return `
 <!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
 <title>Invoice - ${order.order_number}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; padding: 24px; color: #1a1a1a; max-width: 800px; margin: auto; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #f59e0b; padding-bottom: 16px; margin-bottom: 20px; }
-  .brand { font-size: 24px; font-weight: 700; color: #b45309; }
-  .brand small { display: block; font-size: 12px; color: #666; font-weight: 400; }
-  .invoice-title { text-align: right; }
-  .invoice-title h2 { font-size: 20px; color: #333; }
-  .invoice-title p { font-size: 13px; color: #666; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-  .info-box { background: #fefce8; padding: 14px; border-radius: 8px; }
-  .info-box h4 { font-size: 13px; color: #92400e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .info-box p { font-size: 14px; line-height: 1.6; }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-  th { background: #fef3c7; text-align: left; padding: 10px 12px; font-size: 13px; color: #92400e; border-bottom: 2px solid #f59e0b; }
-  td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
-  .total-row td { font-weight: 700; font-size: 16px; border-top: 2px solid #f59e0b; background: #fffbeb; }
-  .footer { text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #999; font-size: 12px; }
-  @media print { body { padding: 0; } .no-print { display: none !important; } }
+  body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; padding: 32px; color: #1a1a1a; max-width: 800px; margin: auto; background: #fff; }
+  
+  .invoice-container { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  
+  .header { background: linear-gradient(135deg, #92400e 0%, #b45309 50%, #d97706 100%); color: white; padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .brand-section { display: flex; align-items: center; gap: 16px; }
+  .brand-logo { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); object-fit: cover; }
+  .brand-name { font-size: 22px; font-weight: 700; }
+  .brand-name small { display: block; font-size: 11px; font-weight: 400; opacity: 0.8; letter-spacing: 1px; }
+  .invoice-meta { text-align: right; }
+  .invoice-meta h2 { font-size: 24px; font-weight: 800; letter-spacing: 2px; opacity: 0.9; }
+  .invoice-meta p { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+  
+  .body-content { padding: 28px 32px; }
+  
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .info-box { background: #fffbeb; padding: 16px; border-radius: 10px; border-left: 4px solid #f59e0b; }
+  .info-box h4 { font-size: 11px; color: #92400e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .info-box p { font-size: 13px; line-height: 1.8; color: #374151; }
+  .info-box strong { color: #1a1a1a; }
+  
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; border-radius: 10px; overflow: hidden; }
+  th { background: #1f2937; color: white; text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; }
+  tr:last-child td { border-bottom: none; }
+  .total-row { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+  .total-row td { font-weight: 700; font-size: 18px; color: #92400e; border-top: 2px solid #f59e0b; padding: 16px; }
+  
+  .payment-badge { display: inline-block; background: #ecfdf5; color: #065f46; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid #a7f3d0; margin-bottom: 20px; }
+  
+  .footer { background: #f9fafb; padding: 20px 32px; border-top: 1px solid #e5e7eb; text-align: center; }
+  .footer p { font-size: 11px; color: #9ca3af; line-height: 1.8; }
+  .footer .highlight { color: #b45309; font-weight: 600; }
+  
+  .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 80px; opacity: 0.03; font-weight: 900; color: #b45309; pointer-events: none; }
+  
+  @media print { 
+    body { padding: 0; } 
+    .no-print { display: none !important; } 
+    .invoice-container { border: none; }
+  }
 </style>
 </head><body>
-  <div class="header">
-    <div class="brand">🍯 দেশি ফুডস<small>Natural Honey - Organic Product</small></div>
-    <div class="invoice-title">
-      <h2>ইনভয়েস</h2>
-      <p>${order.order_number}</p>
-      <p>${new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}</p>
+  <div class="watermark">INVOICE</div>
+  <div class="invoice-container">
+    <div class="header">
+      <div class="brand-section">
+        <div>
+          <div class="brand-name">🍯 Fresh Foods<small>Natural Honey — Eat Natural</small></div>
+        </div>
+      </div>
+      <div class="invoice-meta">
+        <h2>INVOICE</h2>
+        <p>#${order.order_number}</p>
+        <p>${new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}</p>
+      </div>
     </div>
-  </div>
-  <div class="info-grid">
-    <div class="info-box">
-      <h4>👤 কাস্টমার তথ্য</h4>
-      <p><strong>${order.customer_name}</strong></p>
-      <p>📞 ${order.phone}</p>
-      ${order.email ? `<p>📧 ${order.email}</p>` : ""}
+    
+    <div class="body-content">
+      <div class="info-grid">
+        <div class="info-box">
+          <h4>👤 কাস্টমার তথ্য</h4>
+          <p><strong>${order.customer_name}</strong></p>
+          <p>📞 ${order.phone}</p>
+          ${order.email ? `<p>📧 ${order.email}</p>` : ""}
+        </div>
+        <div class="info-box">
+          <h4>📍 ডেলিভারি ঠিকানা</h4>
+          <p>${order.full_address}</p>
+          ${order.area ? `<p>এলাকা: ${order.area}</p>` : ""}
+        </div>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>পণ্য</th>
+            <th style="text-align:center">পরিমাণ</th>
+            <th style="text-align:right">একক মূল্য</th>
+            <th style="text-align:right">মোট</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🍯 Natural Honey</td>
+            <td style="text-align:center">${order.quantity}</td>
+            <td style="text-align:right">৳${order.unit_price?.toLocaleString() || "—"}</td>
+            <td style="text-align:right">৳${((order.unit_price || 0) * order.quantity).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; color: #6b7280;">ডেলিভারি চার্জ</td>
+            <td style="text-align:right">৳${order.delivery_charge.toLocaleString()}</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3" style="text-align:right">সর্বমোট</td>
+            <td style="text-align:right">৳${order.total_amount.toLocaleString()}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="text-align:center">
+        <div class="payment-badge">💰 পেমেন্ট: ${paymentLabel}</div>
+      </div>
     </div>
-    <div class="info-box">
-      <h4>📍 ডেলিভারি ঠিকানা</h4>
-      <p>${order.full_address}</p>
-      ${order.area ? `<p>এলাকা: ${order.area}</p>` : ""}
+    
+    <div class="footer">
+      <p class="highlight">Fresh Foods — Natural Honey | Eat Natural</p>
+      <p>📍 Feni, Bangladesh | 📞 ০১৮৬৮৩৭১৬৭৪ | 📧 info@deshifoods.com</p>
+      <p>ধন্যবাদ আপনার অর্ডারের জন্য!</p>
     </div>
-  </div>
-  <table>
-    <thead><tr><th>পণ্য</th><th style="text-align:center">পরিমাণ</th><th style="text-align:right">একক মূল্য</th><th style="text-align:right">মোট</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>🍯 Natural Honey</td>
-        <td style="text-align:center">${order.quantity}</td>
-        <td style="text-align:right">৳${order.unit_price?.toLocaleString() || "—"}</td>
-        <td style="text-align:right">৳${((order.unit_price || 0) * order.quantity).toLocaleString()}</td>
-      </tr>
-      <tr>
-        <td colspan="3" style="text-align:right">ডেলিভারি চার্জ</td>
-        <td style="text-align:right">৳${order.delivery_charge.toLocaleString()}</td>
-      </tr>
-      <tr class="total-row">
-        <td colspan="3" style="text-align:right">সর্বমোট</td>
-        <td style="text-align:right">৳${order.total_amount.toLocaleString()}</td>
-      </tr>
-    </tbody>
-  </table>
-  <p style="text-align:center; font-size:13px; color:#666; margin-bottom:8px;">💵 পেমেন্ট মেথড: ক্যাশ অন ডেলিভারি (COD)</p>
-  <div class="footer">
-    <p>ধন্যবাদ আপনার অর্ডারের জন্য! | যোগাযোগ: ০১৮৬৮৩৭১৬৭৪</p>
   </div>
 </body></html>`;
+};
 
 const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
   if (!order) return null;
+
+  const paymentLabel = PAYMENT_LABELS[order.payment_method || "cod"] || "ক্যাশ অন ডেলিভারি (COD)";
 
   const handlePrintInvoice = () => {
     const html = generateInvoiceHTML(order);
@@ -103,10 +172,7 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
     if (printWindow) {
       printWindow.document.write(html);
       printWindow.document.close();
-      // Try to print automatically; if printer not available, user can save as PDF
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
+      setTimeout(() => { printWindow.print(); }, 500);
     }
   };
 
@@ -119,6 +185,11 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
     a.download = `invoice-${order.order_number}.html`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleUpdatePayment = async (newMethod: string) => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    await supabase.from("orders").update({ payment_method: newMethod } as any).eq("id", order.id);
   };
 
   return (
@@ -161,7 +232,21 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
               <span>সর্বমোট</span>
               <span>৳{order.total_amount.toLocaleString()}</span>
             </div>
-            <p className="text-xs text-muted-foreground">💵 পেমেন্ট: ক্যাশ অন ডেলিভারি (COD)</p>
+          </div>
+
+          {/* Payment Method */}
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <h4 className="text-sm font-semibold flex items-center gap-1.5"><CreditCard className="h-4 w-4" /> পেমেন্ট পদ্ধতি</h4>
+            <select
+              value={order.payment_method || "cod"}
+              onChange={(e) => handleUpdatePayment(e.target.value)}
+              className="text-sm rounded-md border px-3 py-1.5 w-full bg-background"
+            >
+              <option value="cod">💵 ক্যাশ অন ডেলিভারি (COD)</option>
+              <option value="mfs">📱 মোবাইল ব্যাংকিং (bKash/Nagad)</option>
+              <option value="card">💳 কার্ড পেমেন্ট (Visa/Master)</option>
+              <option value="bank">🏦 ব্যাংক ট্রান্সফার</option>
+            </select>
           </div>
 
           {/* Timestamps */}

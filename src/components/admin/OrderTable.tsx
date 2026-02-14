@@ -22,6 +22,7 @@ export interface OrderRow {
   district_id: string | null;
   area: string | null;
   email: string | null;
+  payment_method?: string;
 }
 
 const STATUS_OPTIONS = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];

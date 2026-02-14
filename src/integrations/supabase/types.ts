@@ -199,6 +199,7 @@ export type Database = {
           id: string
           ip_address: string | null
           order_number: string
+          payment_method: string
           phone: string
           processing_at: string | null
           product_variation_id: string
@@ -225,6 +226,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           order_number: string
+          payment_method?: string
           phone: string
           processing_at?: string | null
           product_variation_id: string
@@ -251,6 +253,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           order_number?: string
+          payment_method?: string
           phone?: string
           processing_at?: string | null
           product_variation_id?: string
