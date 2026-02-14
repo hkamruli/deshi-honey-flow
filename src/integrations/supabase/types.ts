@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bonuses: {
         Row: {
           created_at: string
@@ -48,24 +78,30 @@ export type Database = {
         Row: {
           created_at: string
           delivery_charge: number
+          estimated_delivery_days: number
           id: string
           is_active: boolean
+          is_dhaka_metro: boolean
           name: string
           name_bn: string
         }
         Insert: {
           created_at?: string
           delivery_charge?: number
+          estimated_delivery_days?: number
           id?: string
           is_active?: boolean
+          is_dhaka_metro?: boolean
           name: string
           name_bn: string
         }
         Update: {
           created_at?: string
           delivery_charge?: number
+          estimated_delivery_days?: number
           id?: string
           is_active?: boolean
+          is_dhaka_metro?: boolean
           name?: string
           name_bn?: string
         }
@@ -74,8 +110,10 @@ export type Database = {
       orders: {
         Row: {
           area: string | null
+          confirmed_at: string | null
           created_at: string
           customer_name: string
+          delivered_at: string | null
           delivery_charge: number
           district_id: string | null
           email: string | null
@@ -84,19 +122,24 @@ export type Database = {
           ip_address: string | null
           order_number: string
           phone: string
+          processing_at: string | null
           product_variation_id: string
           quantity: number
           referrer_url: string | null
+          shipped_at: string | null
           status: string
           total_amount: number
           unit_price: number
           updated_at: string
           user_agent: string | null
+          visitor_session_id: string | null
         }
         Insert: {
           area?: string | null
+          confirmed_at?: string | null
           created_at?: string
           customer_name: string
+          delivered_at?: string | null
           delivery_charge?: number
           district_id?: string | null
           email?: string | null
@@ -105,19 +148,24 @@ export type Database = {
           ip_address?: string | null
           order_number: string
           phone: string
+          processing_at?: string | null
           product_variation_id: string
           quantity?: number
           referrer_url?: string | null
+          shipped_at?: string | null
           status?: string
           total_amount: number
           unit_price: number
           updated_at?: string
           user_agent?: string | null
+          visitor_session_id?: string | null
         }
         Update: {
           area?: string | null
+          confirmed_at?: string | null
           created_at?: string
           customer_name?: string
+          delivered_at?: string | null
           delivery_charge?: number
           district_id?: string | null
           email?: string | null
@@ -126,14 +174,17 @@ export type Database = {
           ip_address?: string | null
           order_number?: string
           phone?: string
+          processing_at?: string | null
           product_variation_id?: string
           quantity?: number
           referrer_url?: string | null
+          shipped_at?: string | null
           status?: string
           total_amount?: number
           unit_price?: number
           updated_at?: string
           user_agent?: string | null
+          visitor_session_id?: string | null
         }
         Relationships: [
           {
@@ -203,6 +254,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          action_type: string
+          attempted_at: string
+          blocked_until: string | null
+          id: string
+          ip_address: string
+          is_blocked: boolean
+        }
+        Insert: {
+          action_type?: string
+          attempted_at?: string
+          blocked_until?: string | null
+          id?: string
+          ip_address: string
+          is_blocked?: boolean
+        }
+        Update: {
+          action_type?: string
+          attempted_at?: string
+          blocked_until?: string | null
+          id?: string
+          ip_address?: string
+          is_blocked?: boolean
+        }
+        Relationships: []
+      }
       settings: {
         Row: {
           created_at: string
@@ -263,6 +341,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       visitor_analytics: {
         Row: {
           created_at: string
@@ -270,8 +366,10 @@ export type Database = {
           id: string
           ip_address: string | null
           metadata: Json | null
+          order_id: string | null
           page_url: string | null
           referrer_url: string | null
+          session_id: string | null
           user_agent: string | null
         }
         Insert: {
@@ -280,8 +378,10 @@ export type Database = {
           id?: string
           ip_address?: string | null
           metadata?: Json | null
+          order_id?: string | null
           page_url?: string | null
           referrer_url?: string | null
+          session_id?: string | null
           user_agent?: string | null
         }
         Update: {
@@ -290,8 +390,10 @@ export type Database = {
           id?: string
           ip_address?: string | null
           metadata?: Json | null
+          order_id?: string | null
           page_url?: string | null
           referrer_url?: string | null
+          session_id?: string | null
           user_agent?: string | null
         }
         Relationships: []
@@ -301,10 +403,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_rate_limit: {
+        Args: { p_action?: string; p_ip: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "processing"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -431,6 +550,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
+    },
   },
 } as const
