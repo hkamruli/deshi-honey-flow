@@ -56,14 +56,29 @@ const AdminDashboard = () => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const since = thirtyDaysAgo.toISOString();
 
-    const [{ data: periodOrders }, { data: recent }] = await Promise.all([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todaySince = todayStart.toISOString();
+
+    const [{ data: periodOrders }, { data: recent }, { data: todayVisitors }, { data: totalVisitors }] = await Promise.all([
       supabase.from("orders").select("total_amount, delivery_charge, status").gte("created_at", since),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(10),
+      supabase.from("visitor_analytics").select("session_id").eq("event_type", "page_view").gte("created_at", todaySince),
+      supabase.from("visitor_analytics").select("session_id").eq("event_type", "page_view").gte("created_at", since),
     ]);
 
     const allOrders = periodOrders || [];
     const revenue = allOrders.reduce((s: number, o: any) => s + o.total_amount, 0);
     const deliveryRevenue = allOrders.reduce((s: number, o: any) => s + (o.delivery_charge || 0), 0);
+
+    // Unique daily visitors by session_id
+    const uniqueTodayVisitors = new Set((todayVisitors || []).map((v: any) => v.session_id)).size;
+    // Unique 30-day visitors
+    const uniqueTotalVisitors = new Set((totalVisitors || []).map((v: any) => v.session_id)).size;
+    // Conversion rate = orders / unique visitors * 100
+    const conversionRate = uniqueTotalVisitors > 0
+      ? ((allOrders.length / uniqueTotalVisitors) * 100).toFixed(1)
+      : "0";
 
     setRecentOrders((recent as any[]) || []);
     setAnalytics({
@@ -76,6 +91,8 @@ const AdminDashboard = () => {
       shipped: allOrders.filter((o: any) => o.status === "shipped").length,
       delivered: allOrders.filter((o: any) => o.status === "delivered").length,
       cancelled: allOrders.filter((o: any) => o.status === "cancelled").length,
+      todayVisitors: uniqueTodayVisitors,
+      conversionRate,
     });
   }, []);
 
