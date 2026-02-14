@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useVisitorAnalytics, useScrollTracking } from "@/hooks/useAnalytics";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofBar from "@/components/landing/SocialProofBar";
 import ProblemSection from "@/components/landing/ProblemSection";
@@ -16,6 +17,8 @@ import Footer from "@/components/landing/Footer";
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  useVisitorAnalytics();
+  useScrollTracking();
 
   return (
     <main className="min-h-screen overflow-x-hidden">

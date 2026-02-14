@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Truck, Phone, Lock, Plus, Minus } from "lucide-react";
 import { useProductVariations, useDistricts, useSettings } from "@/hooks/useData";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/hooks/useAnalytics";
 import FadeSection from "./FadeSection";
 
 interface Props {
@@ -88,7 +89,9 @@ const OrderForm = ({ selectedProduct }: Props) => {
     setSubmitting(true);
 
     try {
-      const { error } = await supabase.from("orders").insert({
+      trackEvent("form_submitted");
+
+      const { data: orderData, error } = await supabase.from("orders").insert({
         customer_name: formData.name.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim() || null,
@@ -103,17 +106,30 @@ const OrderForm = ({ selectedProduct }: Props) => {
         ip_address: null,
         user_agent: navigator.userAgent,
         referrer_url: document.referrer || null,
-      } as any);
+        visitor_session_id: sessionStorage.getItem("visitor_session_id") || null,
+      } as any).select("order_number").single();
 
       if (error) throw error;
+
+      trackEvent("order_placed", { total, product: selected.name });
+
+      const isDhakMetro = selectedDistrict?.is_dhaka_metro || false;
+      const estDays = isDhakMetro ? 1 : (selectedDistrict?.estimated_delivery_days || 3);
+      const estimatedDelivery = isDhakMetro ? "২৪ ঘন্টার মধ্যে" : `${estDays} দিনের মধ্যে`;
 
       navigate("/thank-you", {
         state: {
           name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
           product: `${selected.name_bn} (${selected.size_bn})`,
           quantity: formData.quantity,
           total,
           deliveryCharge,
+          orderNumber: orderData?.order_number || "",
+          orderDate: new Date().toLocaleDateString("bn-BD"),
+          estimatedDelivery,
+          isDhakMetro,
         },
       });
     } catch (err) {
