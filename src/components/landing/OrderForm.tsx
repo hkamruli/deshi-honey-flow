@@ -84,6 +84,12 @@ const OrderForm = ({ selectedProduct }: Props) => {
     const phoneErr = validatePhone(formData.phone);
     if (phoneErr) { setPhoneError(phoneErr); return; }
 
+    const emailTrimmed = formData.email.trim();
+    if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      alert("সঠিক ইমেইল দিন");
+      return;
+    }
+
     if (!selected) return;
 
     setSubmitting(true);
@@ -195,8 +201,8 @@ const OrderForm = ({ selectedProduct }: Props) => {
 
                 {/* Email */}
                 <div>
-                  <Label className="text-sm font-semibold">Gmail (optional)</Label>
-                  <Input type="email" placeholder="example@gmail.com" className="mt-1" value={formData.email}
+                  <Label className="text-sm font-semibold">ইমেইল *</Label>
+                  <Input required type="email" placeholder="example@gmail.com" className="mt-1" value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                 </div>
 
