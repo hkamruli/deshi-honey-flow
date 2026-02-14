@@ -1,34 +1,46 @@
 
 
-# Hero Product Image Redesign
+## Fix: Orders Failing on Published Site
 
-## What Changes
+### Problem
+When customers visit the published site (deshi-honey-flow.lovable.app), they cannot place orders. The database rejects inserts with "row-level security policy violation" errors for both the `orders` and `abandoned_carts` tables. This only happens on the published/live site -- the preview works fine.
 
-### 1. Generate New Hero Jar Image
-Use AI image generation to create a premium, realistic 3D honey jar with:
-- Glass jar filled with golden honey
-- Label reading "Deshi Foods - Natural Honey" (English branding)
-- Warm, honey-gold studio background with soft lighting
-- Cork or wooden lid for organic feel
-- Honey drip details on the jar
-- Cinematic warm lighting with natural shadows
+### Root Cause
+The RLS (Row-Level Security) policies that allow anonymous order creation exist in the test database but are not properly applied in the live database. The live environment is blocking all inserts from non-authenticated users.
 
-### 2. Update Hero Image Container
-Redesign the right side of the hero to match the reference layout:
-- Add a **rounded-2xl container** with a warm background behind the product image (similar to the reference)
-- The container will have a subtle warm gradient background that blends with the hero section
-- Slight shadow and border-radius for a card-like presentation
-- The discount badge will overlay on this container
-- On mobile, the container will be centered and slightly smaller
+### Solution
+Create a new database migration that safely re-applies the correct INSERT policies for public-facing tables. This uses `DROP POLICY IF EXISTS` followed by `CREATE POLICY` to guarantee the policies exist regardless of current state. Once published, these will be applied to the live database.
+
+### What Will Change
+
+**New database migration** that re-applies these policies:
+- `orders` table: Allow anyone to INSERT (public checkout)
+- `abandoned_carts` table: Allow anyone to INSERT (cart tracking)
+- `visitor_analytics` table: Allow anyone to INSERT (analytics tracking)
+- `rate_limits` table: Allow anyone to INSERT (rate limit tracking)
+
+**No code changes needed** -- the frontend code is correct. The issue is purely a database configuration mismatch between test and live environments.
 
 ### Technical Details
 
-**Files to modify:**
-- `src/assets/honey-jar-hero.png` -- regenerate with new AI prompt for a 3D realistic jar with warm background and "Deshi Foods - Natural Honey" branding
-- `src/components/landing/HeroSection.tsx` -- update the image container to use a rounded card with warm background, matching the reference style
+The migration SQL will be:
 
-**Image container styling changes:**
-- Wrap the `img` in a container with `rounded-2xl overflow-hidden` and a warm amber/gold background
-- Add subtle inner shadow for depth
-- Keep the discount badge overlaying the bottom-right of the container
+```text
+-- Re-apply public INSERT policies to ensure they exist in live
+
+DROP POLICY IF EXISTS "Anyone can create orders" ON public.orders;
+CREATE POLICY "Anyone can create orders" ON public.orders FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anyone can insert abandoned carts" ON public.abandoned_carts;
+CREATE POLICY "Anyone can insert abandoned carts" ON public.abandoned_carts FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anyone can insert analytics" ON public.visitor_analytics;
+CREATE POLICY "Anyone can insert analytics" ON public.visitor_analytics FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Rate limits are publicly insertable" ON public.rate_limits;
+CREATE POLICY "Rate limits are publicly insertable" ON public.rate_limits FOR INSERT WITH CHECK (true);
+```
+
+### After Implementation
+After approving this plan, you will need to **publish** the project so the migration runs on the live database. Once published, orders will work on the published site for all users and devices.
 
