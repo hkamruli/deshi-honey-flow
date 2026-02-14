@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown } from "lucide-react";
+import AnimatedBee from "./AnimatedBee";
+import FloatingPollen from "./FloatingPollen";
 
 const HeroSection = () => {
   const scrollToOrder = () => {
@@ -8,35 +10,51 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-gradient-hero text-secondary-foreground overflow-hidden">
-      {/* Decorative circles */}
-      <div className="absolute top-10 right-10 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-honey-light/10 blur-3xl" />
+    <section 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden honeycomb-pattern"
+      style={{ background: "linear-gradient(160deg, hsl(25 20% 8%) 0%, hsl(16 60% 18%) 40%, hsl(30 70% 25%) 100%)" }}
+    >
+      <FloatingPollen />
+      <AnimatedBee />
       
-      <div className="relative z-10 container mx-auto px-4 py-16 text-center">
-        <Badge className="mb-6 bg-primary text-primary-foreground text-sm px-4 py-1.5 animate-pulse">
-          🔥 সীমিত স্টক!
+      {/* Radial glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px]" />
+      
+      <div className="relative z-20 container mx-auto px-4 py-20 text-center">
+        {/* Urgency badge */}
+        <Badge className="mb-6 bg-urgency text-primary-foreground text-sm px-5 py-2 animate-pulse rounded-full shadow-lg">
+          🔥 সীমিত স্টক — আজই অর্ডার করুন!
         </Badge>
         
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 leading-tight">
-          <span className="text-honey-light">দেশি ফুডস</span>
+        {/* Brand */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight">
+          <span className="text-gradient-honey drop-shadow-lg">দেশি ফুডস</span>
         </h1>
         
-        <p className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-cream/90">
+        {/* Honey jar emoji as visual */}
+        <div className="text-6xl md:text-8xl mb-6 drop-shadow-xl">🍯</div>
+        
+        {/* Headline */}
+        <p className="text-xl md:text-3xl font-bold mb-3 text-cream">
           সুন্দরবন ও সিলেটের খাঁটি মধু
         </p>
-        <p className="text-lg md:text-xl text-cream/70 mb-8 max-w-2xl mx-auto">
-          ১০০% প্রাকৃতিক ও বিশুদ্ধ মধু — কোনো মিশ্রণ নেই, কোনো কেমিক্যাল নেই। সরাসরি আপনার ঘরে পৌঁছে যাবে।
+        <p className="text-base md:text-lg text-cream/70 mb-8 max-w-xl mx-auto leading-relaxed">
+          ১০০% প্রাকৃতিক — কোনো চিনি নেই, কোনো কেমিক্যাল নেই।
+          <br />
+          সরাসরি চাক থেকে আপনার ঘরে।
         </p>
         
+        {/* CTA */}
         <Button
           onClick={scrollToOrder}
           size="lg"
-          className="bg-gradient-honey text-primary-foreground font-bold text-lg px-10 py-6 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          className="bg-gradient-cta text-primary-foreground font-bold text-lg px-12 py-7 rounded-full glow-cta hover:scale-105 transition-all duration-300"
         >
           এখনই অর্ডার করুন
           <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
         </Button>
+        
+        <p className="mt-4 text-cream/50 text-sm">🚚 সারা বাংলাদেশে ক্যাশ অন ডেলিভারি</p>
       </div>
     </section>
   );
