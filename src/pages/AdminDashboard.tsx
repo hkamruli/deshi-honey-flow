@@ -646,6 +646,18 @@ const OffersSection = () => {
 };
 
 // ===================== SETTINGS SECTION =====================
+const SETTINGS_LABELS: Record<string, string> = {
+  delivery_charge_inside_dhaka: "ঢাকায় ডেলিভারি চার্জ (৳)",
+  delivery_charge_outside_dhaka: "ঢাকার বাইরে ডেলিভারি চার্জ (৳)",
+  discount_amount: "ডিসকাউন্ট পরিমাণ (৳)",
+  free_delivery_enabled: "ফ্রি ডেলিভারি সক্রিয়",
+  honey_dipper_value: "হানি ডিপার মূল্য (৳)",
+  stock_counter_number: "স্টক কাউন্টার সংখ্যা",
+  whatsapp_number: "হোয়াটসঅ্যাপ নম্বর",
+  contact_email: "যোগাযোগ ইমেইল",
+  contact_phone: "যোগাযোগ ফোন",
+};
+
 const SettingsSection = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState<any[]>([]);
@@ -688,8 +700,51 @@ const SettingsSection = () => {
 
   if (loading) return <div className="h-40 bg-muted/50 rounded-xl animate-pulse" />;
 
+  // Separate pricing/discount settings from others
+  const pricingKeys = ["delivery_charge_inside_dhaka", "delivery_charge_outside_dhaka", "discount_amount", "free_delivery_enabled", "honey_dipper_value"];
+  const pricingSettings = settings.filter(s => pricingKeys.includes(s.key));
+  const otherSettings = settings.filter(s => !pricingKeys.includes(s.key));
+
   return (
     <>
+      {/* Pricing & Discount Card */}
+      <Card className="border-primary/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">💰 মূল্য, ডেলিভারি ও ডিসকাউন্ট</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {pricingSettings.map((s) => (
+            <div key={s.id} className="flex items-center justify-between gap-4 bg-muted/50 rounded-lg p-3">
+              <span className="text-sm font-medium">{SETTINGS_LABELS[s.key] || s.key}</span>
+              <div className="flex items-center gap-2">
+                {editingId === s.id ? (
+                  <>
+                    {s.key === "free_delivery_enabled" ? (
+                      <select className="h-8 rounded-md border px-2 text-sm" value={editValue} onChange={(e) => setEditValue(e.target.value)}>
+                        <option value="true">হ্যাঁ (সক্রিয়)</option>
+                        <option value="false">না (নিষ্ক্রিয়)</option>
+                      </select>
+                    ) : (
+                      <Input className="h-8 text-sm w-28" value={editValue} onChange={(e) => setEditValue(e.target.value)} />
+                    )}
+                    <Button variant="ghost" size="icon" onClick={() => saveEdit(s.id)}><Save className="h-4 w-4 text-emerald-600" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => setEditingId(null)}><X className="h-4 w-4" /></Button>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-sm font-bold text-primary">
+                      {s.key === "free_delivery_enabled" ? (s.value === "true" ? "✅ সক্রিয়" : "❌ নিষ্ক্রিয়") : `৳${s.value}`}
+                    </span>
+                    <Button variant="ghost" size="icon" onClick={() => { setEditingId(s.id); setEditValue(s.value); }}><Pencil className="h-4 w-4" /></Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Other Settings */}
       <div className="flex justify-end">
         <Button size="sm" onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 mr-1" /> নতুন সেটিং</Button>
       </div>
@@ -705,9 +760,9 @@ const SettingsSection = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {settings.map((s) => (
+                {otherSettings.map((s) => (
                   <TableRow key={s.id}>
-                    <TableCell className="font-mono text-xs">{s.key}</TableCell>
+                    <TableCell className="font-mono text-xs">{SETTINGS_LABELS[s.key] || s.key}</TableCell>
                     <TableCell>
                       {editingId === s.id ? (
                         <Input className="h-8 text-xs" value={editValue} onChange={(e) => setEditValue(e.target.value)} />

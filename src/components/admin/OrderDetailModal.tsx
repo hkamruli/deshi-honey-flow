@@ -229,7 +229,11 @@ export const generateInvoiceHTML = (order: OrderRow) => {
           </tr>
           <tr class="subtotal-row">
             <td colspan="3" style="text-align:right">ডেলিভারি চার্জ</td>
-            <td style="text-align:right">৳${order.delivery_charge.toLocaleString()}</td>
+            <td style="text-align:right">${order.delivery_charge === 0 ? '<span style="color:#059669;font-weight:600">ফ্রি</span>' : `৳${order.delivery_charge.toLocaleString()}`}</td>
+          </tr>
+          <tr class="subtotal-row">
+            <td colspan="3" style="text-align:right">🎁 হানি ডিপার</td>
+            <td style="text-align:right"><span style="color:#059669;font-weight:600">ফ্রি</span></td>
           </tr>
           <tr class="total-row">
             <td colspan="3" style="text-align:right">সর্বমোট</td>
@@ -317,7 +321,11 @@ const OrderDetailModal = ({ order, open, onClose, onStatusChange }: Props) => {
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>ডেলিভারি চার্জ</span>
-              <span>৳{order.delivery_charge.toLocaleString()}</span>
+              <span>{order.delivery_charge === 0 ? <span className="text-secondary font-medium">ফ্রি</span> : `৳${order.delivery_charge.toLocaleString()}`}</span>
+            </div>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>🎁 হানি ডিপার</span>
+              <span className="text-secondary font-medium">ফ্রি</span>
             </div>
             <div className="flex justify-between text-sm font-bold border-t pt-2">
               <span>সর্বমোট</span>
