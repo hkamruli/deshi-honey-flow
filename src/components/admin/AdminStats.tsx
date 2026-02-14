@@ -14,15 +14,12 @@ interface Analytics {
   totalOrders: number;
   revenue: number;
   deliveryRevenue: number;
-  conversionRate: string;
   pending: number;
   confirmed: number;
   processing: number;
   shipped: number;
   delivered: number;
   cancelled: number;
-  visitorCount: number;
-  uncompleted: number;
 }
 
 const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
