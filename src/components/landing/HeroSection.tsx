@@ -35,44 +35,42 @@ const HeroSection = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center justify-center overflow-hidden honeycomb-pattern"
+      className="relative overflow-hidden honeycomb-pattern"
       style={{ background: "linear-gradient(160deg, hsl(25 20% 8%) 0%, hsl(16 60% 18%) 40%, hsl(30 70% 25%) 100%)" }}
     >
       <FloatingPollen />
       <AnimatedBee />
 
       {/* Radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[100px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-primary/10 blur-[100px]" />
 
-      <div className="relative z-20 container mx-auto px-4 py-16">
-        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+      <div className="relative z-20 max-w-[1140px] mx-auto px-6 md:px-10 lg:px-14 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-[55fr_45fr] gap-8 md:gap-12 items-center">
           {/* Left: Text content */}
-          <div className="flex-1 text-center md:text-left">
-            {/* Urgency badge */}
-            <Badge className="mb-5 bg-urgency text-primary-foreground text-sm px-5 py-2 animate-pulse rounded-full shadow-lg">
+          <div className="text-center md:text-left">
+            <Badge className="mb-4 bg-urgency text-primary-foreground text-sm px-5 py-2 animate-pulse rounded-full shadow-lg">
               🔥 আজকের অফার – সীমিত সময়
             </Badge>
 
-            {/* Brand */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 leading-tight">
               <span className="text-gradient-honey drop-shadow-lg">দেশি ফুডস</span>
             </h1>
 
-            <p className="text-xl md:text-2xl font-bold mb-2 text-cream">
+            <p className="text-lg md:text-xl font-bold mb-1.5 text-cream">
               সুন্দরবন ও সিলেটের খাঁটি মধু
             </p>
-            <p className="text-sm md:text-base text-cream/60 mb-6 max-w-md md:mx-0 mx-auto">
+            <p className="text-sm text-cream/60 mb-5 max-w-sm md:mx-0 mx-auto">
               ১০০% প্রাকৃতিক — কোনো চিনি নেই, কোনো কেমিক্যাল নেই
             </p>
 
             {/* Countdown timer */}
-            <div className="mb-6">
-              <p className="text-cream/50 text-xs mb-2">⏰ অফার শেষ হচ্ছে</p>
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xl md:text-2xl font-extrabold">
+            <div className="mb-5">
+              <p className="text-cream/50 text-xs mb-1.5">⏰ অফার শেষ হচ্ছে</p>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-lg md:text-xl font-extrabold">
                 {[pad(timeLeft.hours), pad(timeLeft.minutes), pad(timeLeft.seconds)].map((v, i) => (
-                  <span key={i} className="flex items-center gap-2">
+                  <span key={i} className="flex items-center gap-1.5">
                     {i > 0 && <span className="text-cream/40">:</span>}
-                    <span className={`px-2.5 py-1.5 rounded-lg min-w-[44px] inline-block ${
+                    <span className={`px-2 py-1 rounded-lg min-w-[40px] inline-block text-center ${
                       isUrgent ? "bg-urgency/80 text-primary-foreground" : "bg-cream/10 text-cream"
                     }`}>
                       {v}
@@ -86,26 +84,34 @@ const HeroSection = () => {
             <Button
               onClick={scrollToOrder}
               size="lg"
-              className="bg-gradient-cta text-primary-foreground font-bold text-base md:text-lg px-10 py-7 rounded-full glow-cta hover:scale-105 transition-all duration-300 animate-pulse-glow"
+              className="bg-gradient-cta text-primary-foreground font-bold text-base px-8 py-6 rounded-full glow-cta hover:scale-105 transition-all duration-300 animate-pulse-glow"
             >
               👉 ফ্রি গিফটসহ এখনই অর্ডার করুন
               <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
             </Button>
 
-            <p className="mt-4 text-cream/40 text-xs">🚚 সারা বাংলাদেশে ক্যাশ অন ডেলিভারি</p>
+            <div className="mt-3 flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-cream/50 text-xs">
+              <span>✓ ফ্রি ডেলিভারি</span>
+              <span>✓ ক্যাশ অন ডেলিভারি</span>
+              <span>✓ ৭ দিনের গ্যারান্টি</span>
+            </div>
           </div>
 
-          {/* Right: Honey jar image */}
-          <div className="flex-shrink-0 relative">
-            <div className="relative w-56 h-72 md:w-72 md:h-96">
+          {/* Right: Honey jar */}
+          <div className="flex justify-center md:justify-end">
+            <div className="relative w-64 h-80 md:w-72 md:h-[360px]">
               <img
                 src={honeyJarHero}
                 alt="দেশি ফুডস খাঁটি মধু"
                 className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
                 loading="eager"
               />
-              {/* Glow behind jar */}
-              <div className="absolute inset-0 -z-10 rounded-full bg-primary/15 blur-3xl scale-75" />
+              <div className="absolute inset-0 -z-10 rounded-full bg-primary/15 blur-3xl scale-90" />
+              {/* Discount badge */}
+              <div className="absolute bottom-6 right-0 bg-urgency/90 text-primary-foreground px-3 py-1.5 rounded-lg shadow-lg text-center">
+                <p className="text-[10px] leading-none mb-0.5">বিশেষ অফার</p>
+                <p className="text-lg font-extrabold leading-none">৪৪% ছাড়</p>
+              </div>
             </div>
           </div>
         </div>
