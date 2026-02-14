@@ -21,22 +21,22 @@ const CountdownTimer = () => {
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <section className="py-6 bg-accent text-accent-foreground">
+    <section className="py-5 bg-urgency text-primary-foreground">
       <div className="container mx-auto px-4 text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Clock className="h-5 w-5 text-primary" />
-          <span className="font-bold text-lg">⏰ বিশেষ অফার শেষ হচ্ছে!</span>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Clock className="h-5 w-5" />
+          <span className="font-bold text-lg">⏰ বিশেষ ছাড় শেষ হচ্ছে!</span>
         </div>
-        <div className="flex items-center justify-center gap-3 text-3xl md:text-4xl font-extrabold">
-          <div className="bg-foreground text-background rounded-lg px-3 py-2 min-w-[60px]">
+        <div className="flex items-center justify-center gap-2 text-2xl md:text-4xl font-extrabold">
+          <div className="bg-primary-foreground/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[56px]">
             {pad(timeLeft.hours)}
           </div>
-          <span>:</span>
-          <div className="bg-foreground text-background rounded-lg px-3 py-2 min-w-[60px]">
+          <span className="text-primary-foreground/70">:</span>
+          <div className="bg-primary-foreground/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[56px]">
             {pad(timeLeft.minutes)}
           </div>
-          <span>:</span>
-          <div className="bg-foreground text-background rounded-lg px-3 py-2 min-w-[60px]">
+          <span className="text-primary-foreground/70">:</span>
+          <div className="bg-primary-foreground/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[56px]">
             {pad(timeLeft.seconds)}
           </div>
         </div>
