@@ -48,7 +48,7 @@ const ValueStack = () => {
 
   return (
     <FadeSection>
-      <section className="py-16 md:py-24" style={{ background: "linear-gradient(160deg, hsl(25 20% 8%) 0%, hsl(16 60% 18%) 100%)" }}>
+      <section className="py-16 md:py-24" style={{ background: "linear-gradient(160deg, hsl(145 35% 10%) 0%, hsl(150 30% 15%) 40%, hsl(160 25% 12%) 100%)" }}>
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="text-center">
             <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">

@@ -36,7 +36,7 @@ const HeroSection = () => {
   return (
     <section
       className="relative overflow-hidden honeycomb-pattern"
-      style={{ background: "linear-gradient(160deg, hsl(25 20% 8%) 0%, hsl(16 60% 18%) 40%, hsl(30 70% 25%) 100%)" }}
+      style={{ background: "linear-gradient(160deg, hsl(20 30% 6%) 0%, hsl(25 50% 14%) 35%, hsl(35 60% 20%) 70%, hsl(30 45% 16%) 100%)" }}
     >
       <FloatingPollen />
       <AnimatedBee />

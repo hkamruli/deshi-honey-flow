@@ -235,7 +235,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
 
   return (
     <FadeSection>
-      <section id="order-section" className="py-16 md:py-24 honeycomb-pattern" style={{ background: "linear-gradient(160deg, hsl(16 60% 18%) 0%, hsl(25 20% 8%) 100%)" }}>
+      <section id="order-section" className="py-16 md:py-24 honeycomb-pattern" style={{ background: "linear-gradient(160deg, hsl(25 40% 10%) 0%, hsl(30 50% 16%) 50%, hsl(38 45% 20%) 100%)" }}>
         <div className="container mx-auto px-4 max-w-lg">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold mb-2 text-cream">অর্ডার করুন</h2>
