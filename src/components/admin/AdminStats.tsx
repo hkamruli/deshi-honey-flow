@@ -93,7 +93,7 @@ const AdminStats = ({ analytics }: { analytics: Analytics | null }) => {
             <div>
               <p className="text-sm text-muted-foreground font-medium">আজকের ভিজিটর</p>
               <p className="text-3xl font-extrabold text-blue-600 mt-1">
-                {analytics.todayVisitors.toLocaleString()}
+                {(analytics.todayVisitors ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
