@@ -48,20 +48,27 @@ const Testimonials = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-scroll marquee
+  // Auto-scroll marquee using CSS-based approach to avoid forced reflows
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || !testimonials?.length) return;
 
+    // Cache scrollWidth once to avoid reading it every frame
+    let cachedHalfWidth = el.scrollWidth / 2;
     let animationId: number;
     let scrollPos = 0;
-    const speed = 0.5; // pixels per frame
+    const speed = 0.5;
+
+    // Recalculate on resize
+    const resizeObserver = new ResizeObserver(() => {
+      cachedHalfWidth = el.scrollWidth / 2;
+    });
+    resizeObserver.observe(el);
 
     const animate = () => {
       if (!isPaused && el) {
         scrollPos += speed;
-        // Reset when scrolled half (since content is duplicated)
-        if (scrollPos >= el.scrollWidth / 2) {
+        if (scrollPos >= cachedHalfWidth) {
           scrollPos = 0;
         }
         el.scrollLeft = scrollPos;
@@ -70,7 +77,10 @@ const Testimonials = () => {
     };
 
     animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationId);
+      resizeObserver.disconnect();
+    };
   }, [testimonials, isPaused]);
 
   // Recent order popup
