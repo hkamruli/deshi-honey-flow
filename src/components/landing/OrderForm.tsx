@@ -279,6 +279,7 @@ const OrderForm = ({ selectedProduct }: Props) => {
                   <Label className="text-sm font-semibold">জেলা *</Label>
                   <select
                     required
+                    aria-label="জেলা নির্বাচন করুন"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
                     value={formData.deliveryZone}
                     onChange={(e) => handleFieldChange({ deliveryZone: e.target.value })}
