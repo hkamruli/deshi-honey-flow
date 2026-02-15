@@ -21,13 +21,18 @@ export function useVisitorAnalytics() {
 
     const sessionId = getSessionId();
 
-    supabase.from("visitor_analytics").insert({
-      session_id: sessionId,
-      event_type: "page_view",
-      page_url: window.location.pathname,
-      referrer_url: document.referrer || null,
-      user_agent: navigator.userAgent,
-    } as any).then(() => {});
+    supabase.functions.invoke("track-event", {
+      body: {
+        action: "track",
+        payload: {
+          session_id: sessionId,
+          event_type: "page_view",
+          page_url: window.location.pathname,
+          referrer_url: document.referrer || null,
+          user_agent: navigator.userAgent,
+        },
+      },
+    }).catch(() => {});
   }, []);
 
   return { sessionId: getSessionId() };
@@ -35,13 +40,18 @@ export function useVisitorAnalytics() {
 
 export function trackEvent(eventType: string, metadata?: Record<string, any>) {
   const sessionId = getSessionId();
-  supabase.from("visitor_analytics").insert({
-    session_id: sessionId,
-    event_type: eventType,
-    page_url: window.location.pathname,
-    metadata: metadata || {},
-    user_agent: navigator.userAgent,
-  } as any).then(() => {});
+  supabase.functions.invoke("track-event", {
+    body: {
+      action: "track",
+      payload: {
+        session_id: sessionId,
+        event_type: eventType,
+        page_url: window.location.pathname,
+        metadata: metadata || {},
+        user_agent: navigator.userAgent,
+      },
+    },
+  }).catch(() => {});
 }
 
 export function useScrollTracking() {
@@ -61,4 +71,31 @@ export function useScrollTracking() {
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
+}
+
+export async function saveAbandonedCartViaEdge(
+  id: string | null,
+  payload: Record<string, any>
+): Promise<string | null> {
+  try {
+    const { data } = await supabase.functions.invoke("track-event", {
+      body: {
+        action: id ? "abandoned_cart_save" : "abandoned_cart_save",
+        payload: { ...payload, id: id || undefined },
+      },
+    });
+    return data?.id || id;
+  } catch {
+    return id;
+  }
+}
+
+export async function convertAbandonedCartViaEdge(id: string) {
+  try {
+    await supabase.functions.invoke("track-event", {
+      body: { action: "abandoned_cart_convert", payload: { id } },
+    });
+  } catch {
+    // silent
+  }
 }

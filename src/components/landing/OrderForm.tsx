@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Truck, Phone, Lock, Plus, Minus } from "lucide-react";
 import { useProductVariations, useSettings } from "@/hooks/useData";
 import { supabase } from "@/integrations/supabase/client";
-import { trackEvent } from "@/hooks/useAnalytics";
+import { trackEvent, saveAbandonedCartViaEdge, convertAbandonedCartViaEdge } from "@/hooks/useAnalytics";
 import FadeSection from "./FadeSection";
 
 interface Props {
@@ -62,16 +62,8 @@ const OrderForm = ({ selectedProduct }: Props) => {
       referrer_url: document.referrer || null,
     };
 
-    try {
-      if (abandonedCartId.current) {
-        await supabase.from("abandoned_carts").update(payload as any).eq("id", abandonedCartId.current);
-      } else {
-        const { data: inserted } = await supabase.from("abandoned_carts").insert(payload as any).select("id").single();
-        if (inserted) abandonedCartId.current = inserted.id;
-      }
-    } catch (e) {
-      // Silent fail
-    }
+    const resultId = await saveAbandonedCartViaEdge(abandonedCartId.current, payload);
+    if (resultId) abandonedCartId.current = resultId;
   }, []);
 
   // Debounced save on form change
@@ -169,31 +161,29 @@ const OrderForm = ({ selectedProduct }: Props) => {
     try {
       trackEvent("form_submitted");
 
-      const { data: orderData, error } = await supabase.from("orders").insert({
-        customer_name: formData.name.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim() || null,
-        district_id: null,
-        area: `${isDhaka ? "ঢাকা" : "ঢাকার বাইরে"}${formData.area ? ` - ${formData.area.trim()}` : ""}`,
-        full_address: formData.address.trim(),
-        product_variation_id: selected.id,
-        quantity: formData.quantity,
-        unit_price: unitPrice,
-        delivery_charge: deliveryCharge,
-        total_amount: total > 0 ? total : subtotal,
-        payment_method: formData.paymentMethod,
-        ip_address: null,
-        user_agent: navigator.userAgent,
-        referrer_url: document.referrer || null,
-        visitor_session_id: sessionStorage.getItem("visitor_session_id") || null,
-      } as any).select("order_number").single();
+      const { data: orderResult, error: fnError } = await supabase.functions.invoke("submit-order", {
+        body: {
+          customer_name: formData.name.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim() || null,
+          district_id: null,
+          area: `${isDhaka ? "ঢাকা" : "ঢাকার বাইরে"}${formData.area ? ` - ${formData.area.trim()}` : ""}`,
+          full_address: formData.address.trim(),
+          product_variation_id: selected.id,
+          quantity: formData.quantity,
+          unit_price: unitPrice,
+          delivery_charge: deliveryCharge,
+          total_amount: total > 0 ? total : subtotal,
+          payment_method: formData.paymentMethod,
+          user_agent: navigator.userAgent,
+          referrer_url: document.referrer || null,
+          visitor_session_id: sessionStorage.getItem("visitor_session_id") || null,
+          abandoned_cart_id: abandonedCartId.current || null,
+        },
+      });
 
-      if (error) throw error;
-
-      // Delete abandoned cart since order was placed
-      if (abandonedCartId.current) {
-        supabase.from("abandoned_carts").update({ is_converted: true } as any).eq("id", abandonedCartId.current).then(() => {});
-      }
+      if (fnError) throw fnError;
+      const orderData = orderResult;
 
       trackEvent("order_placed", { total, product: selected.name });
 
