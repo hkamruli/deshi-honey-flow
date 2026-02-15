@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowDown } from "lucide-react";
 import AnimatedBee from "./AnimatedBee";
 import FloatingPollen from "./FloatingPollen";
-import honeyJarHero from "@/assets/honey-jar-hero.png";
+const honeyJarHero = "/images/honey-jar-hero.png";
 import logo from "@/assets/logo-small.webp";
 
 const HeroSection = () => {
