@@ -38,21 +38,38 @@ const SolutionSection = () => {
             </Badge>
           </div>
 
-          {/* Comparison Table */}
-          <div className="bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
+          {/* Desktop: Comparison Table */}
+          <div className="hidden md:block bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
             <div className="grid grid-cols-3 text-center font-bold text-sm border-b border-border">
               <div className="p-3 bg-muted"></div>
               <div className="p-3 bg-urgency/5 text-urgency">❌ অন্য মধু</div>
               <div className="p-3 bg-secondary/5 text-secondary">✅ দেশি ফুডস</div>
             </div>
             {comparisonData.map((row, i) => (
-              <div key={i} className={`grid grid-cols-3 text-xs md:text-sm ${i < comparisonData.length - 1 ? "border-b border-border" : ""}`}>
+              <div key={i} className={`grid grid-cols-3 text-sm ${i < comparisonData.length - 1 ? "border-b border-border" : ""}`}>
                 <div className="p-3 font-semibold bg-muted/50">{row.feature}</div>
                 <div className="p-3 text-muted-foreground flex items-start gap-1.5">
                   <X className="h-3.5 w-3.5 text-urgency shrink-0 mt-0.5" />
                   <span>{row.other}</span>
                 </div>
                 <div className="p-3 flex items-start gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-secondary shrink-0 mt-0.5" />
+                  <span>{row.deshi}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: Stacked Cards */}
+          <div className="md:hidden space-y-3">
+            {comparisonData.map((row, i) => (
+              <div key={i} className="bg-background rounded-xl border border-border p-4 shadow-sm">
+                <p className="font-semibold text-sm mb-2">{row.feature}</p>
+                <div className="flex items-start gap-2 text-xs text-muted-foreground mb-1.5">
+                  <X className="h-3.5 w-3.5 text-urgency shrink-0 mt-0.5" />
+                  <span>{row.other}</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
                   <Check className="h-3.5 w-3.5 text-secondary shrink-0 mt-0.5" />
                   <span>{row.deshi}</span>
                 </div>

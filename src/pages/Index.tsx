@@ -23,7 +23,7 @@ const Index = () => {
   useScrollTracking();
 
   return (
-    <main className="min-h-screen overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden animate-fade-in">
       <HeroSection />
       <SocialProofBar />
       <HoneyDripDivider />
