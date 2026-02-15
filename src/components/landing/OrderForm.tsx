@@ -9,6 +9,7 @@ import { useProductVariations, useSettings } from "@/hooks/useData";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent, saveAbandonedCartViaEdge, convertAbandonedCartViaEdge } from "@/hooks/useAnalytics";
 import FadeSection from "./FadeSection";
+import { toast } from "@/hooks/use-toast";
 
 interface Props {
   selectedProduct?: any;
@@ -208,7 +209,11 @@ const OrderForm = ({ selectedProduct }: Props) => {
       });
     } catch (err) {
       console.error("Order error:", err);
-      alert("অর্ডার জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      toast({
+        variant: "destructive",
+        title: "অর্ডার জমা দিতে সমস্যা হয়েছে",
+        description: err instanceof Error ? err.message : "আবার চেষ্টা করুন।",
+      });
     } finally {
       setSubmitting(false);
     }
