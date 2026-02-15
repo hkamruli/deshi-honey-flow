@@ -3,7 +3,7 @@ import { useVisitorAnalytics, useScrollTracking } from "@/hooks/useAnalytics";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofBar from "@/components/landing/SocialProofBar";
 import HoneyDripDivider from "@/components/landing/HoneyDripDivider";
-import StickyCTA from "@/components/landing/StickyCTA";
+const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
 
 // Lazy load below-fold components
 const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
@@ -57,7 +57,9 @@ const Index = () => {
       <Suspense fallback={<div className="min-h-[100px]" />}>
         <Footer />
       </Suspense>
-      <StickyCTA />
+      <Suspense fallback={null}>
+        <StickyCTA />
+      </Suspense>
     </main>
   );
 };
