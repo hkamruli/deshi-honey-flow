@@ -1,7 +1,12 @@
+import { lazy, Suspense } from "react";
 import FadeSection from "./FadeSection";
+
+const AccordionContent = lazy(() => 
+  import("@/components/ui/accordion").then(mod => ({ default: mod.AccordionContent }))
+);
+
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
@@ -33,9 +38,11 @@ const FAQSection = () => {
                 <AccordionTrigger className="text-left font-semibold hover:no-underline text-sm md:text-base">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed text-sm">
-                  {faq.a}
-                </AccordionContent>
+                <Suspense fallback={null}>
+                  <AccordionContent className="text-muted-foreground leading-relaxed text-sm">
+                    {faq.a}
+                  </AccordionContent>
+                </Suspense>
               </AccordionItem>
             ))}
           </Accordion>
