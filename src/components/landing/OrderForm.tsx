@@ -345,11 +345,11 @@ const OrderForm = ({ selectedProduct }: Props) => {
                 <div>
                   <Label className="text-sm font-semibold">পরিমাণ</Label>
                   <div className="flex items-center gap-3 mt-1">
-                    <Button type="button" variant="outline" size="icon" onClick={() => updateQuantity(-1)} disabled={formData.quantity <= 1}>
+                    <Button type="button" variant="outline" size="icon" aria-label="পরিমাণ কমান" onClick={() => updateQuantity(-1)} disabled={formData.quantity <= 1}>
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="text-xl font-bold w-12 text-center">{formData.quantity}</span>
-                    <Button type="button" variant="outline" size="icon" onClick={() => updateQuantity(1)} disabled={formData.quantity >= 10}>
+                    <Button type="button" variant="outline" size="icon" aria-label="পরিমাণ বাড়ান" onClick={() => updateQuantity(1)} disabled={formData.quantity >= 10}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
