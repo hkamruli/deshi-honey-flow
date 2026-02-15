@@ -1,46 +1,21 @@
 
 
-## Fix: Orders Failing on Published Site
+## Problem
 
-### Problem
-When customers visit the published site (deshi-honey-flow.lovable.app), they cannot place orders. The database rejects inserts with "row-level security policy violation" errors for both the `orders` and `abandoned_carts` tables. This only happens on the published/live site -- the preview works fine.
+The order submission fails on the published site with the error "অর্ডার জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।" (Order submission failed. Try again.)
 
-### Root Cause
-The RLS (Row-Level Security) policies that allow anonymous order creation exist in the test database but are not properly applied in the live database. The live environment is blocking all inserts from non-authenticated users.
+## Root Cause
 
-### Solution
-Create a new database migration that safely re-applies the correct INSERT policies for public-facing tables. This uses `DROP POLICY IF EXISTS` followed by `CREATE POLICY` to guarantee the policies exist regardless of current state. Once published, these will be applied to the live database.
+The `submit-order` backend function was **never deployed**. The backend logs show zero calls ever made to this function. When a customer clicks "অর্ডার কনফার্ম করুন" (Confirm Order), the app tries to call the `submit-order` function, but since it doesn't exist in production, it fails and shows the error alert.
 
-### What Will Change
+## Solution
 
-**New database migration** that re-applies these policies:
-- `orders` table: Allow anyone to INSERT (public checkout)
-- `abandoned_carts` table: Allow anyone to INSERT (cart tracking)
-- `visitor_analytics` table: Allow anyone to INSERT (analytics tracking)
-- `rate_limits` table: Allow anyone to INSERT (rate limit tracking)
+1. **Deploy the `submit-order` edge function** - This is the primary fix. The function code already exists and works correctly (tested and confirmed). It just needs to be deployed.
 
-**No code changes needed** -- the frontend code is correct. The issue is purely a database configuration mismatch between test and live environments.
+2. **Improve error handling** - Replace the generic `alert()` with a more user-friendly toast notification that shows the actual error message from the server (when available), helping debug future issues.
 
-### Technical Details
+## Technical Details
 
-The migration SQL will be:
-
-```text
--- Re-apply public INSERT policies to ensure they exist in live
-
-DROP POLICY IF EXISTS "Anyone can create orders" ON public.orders;
-CREATE POLICY "Anyone can create orders" ON public.orders FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Anyone can insert abandoned carts" ON public.abandoned_carts;
-CREATE POLICY "Anyone can insert abandoned carts" ON public.abandoned_carts FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Anyone can insert analytics" ON public.visitor_analytics;
-CREATE POLICY "Anyone can insert analytics" ON public.visitor_analytics FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Rate limits are publicly insertable" ON public.rate_limits;
-CREATE POLICY "Rate limits are publicly insertable" ON public.rate_limits FOR INSERT WITH CHECK (true);
-```
-
-### After Implementation
-After approving this plan, you will need to **publish** the project so the migration runs on the live database. Once published, orders will work on the published site for all users and devices.
+- The function code at `supabase/functions/submit-order/index.ts` is fully functional (verified by direct testing - it successfully created order NH-2026-000012).
+- The fix requires deploying the function and optionally improving the error UX in `src/components/landing/OrderForm.tsx` (line 211) to replace `alert()` with a toast notification.
 
