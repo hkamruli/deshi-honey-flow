@@ -3,14 +3,14 @@ import { useVisitorAnalytics, useScrollTracking } from "@/hooks/useAnalytics";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProofBar from "@/components/landing/SocialProofBar";
 import HoneyDripDivider from "@/components/landing/HoneyDripDivider";
-import ProblemSection from "@/components/landing/ProblemSection";
-import SolutionSection from "@/components/landing/SolutionSection";
-import SourcingStory from "@/components/landing/SourcingStory";
-import CountdownTimer from "@/components/landing/CountdownTimer";
-import Footer from "@/components/landing/Footer";
 import StickyCTA from "@/components/landing/StickyCTA";
 
-// Lazy load heavier below-fold components
+// Lazy load below-fold components
+const ProblemSection = lazy(() => import("@/components/landing/ProblemSection"));
+const SolutionSection = lazy(() => import("@/components/landing/SolutionSection"));
+const SourcingStory = lazy(() => import("@/components/landing/SourcingStory"));
+const CountdownTimer = lazy(() => import("@/components/landing/CountdownTimer"));
+const Footer = lazy(() => import("@/components/landing/Footer"));
 const Testimonials = lazy(() => import("@/components/landing/Testimonials"));
 const ValueStack = lazy(() => import("@/components/landing/ValueStack"));
 const ProductOptions = lazy(() => import("@/components/landing/ProductOptions"));
@@ -27,10 +27,14 @@ const Index = () => {
       <HeroSection />
       <SocialProofBar />
       <HoneyDripDivider />
-      <ProblemSection />
+      <Suspense fallback={<div className="min-h-[200px]" />}>
+        <ProblemSection />
+      </Suspense>
       <HoneyDripDivider />
-      <SolutionSection />
-      <SourcingStory />
+      <Suspense fallback={<div className="min-h-[200px]" />}>
+        <SolutionSection />
+        <SourcingStory />
+      </Suspense>
       <HoneyDripDivider />
       <Suspense fallback={<div className="min-h-[200px]" />}>
         <Testimonials />
@@ -39,7 +43,9 @@ const Index = () => {
       <Suspense fallback={<div className="min-h-[200px]" />}>
         <ValueStack />
       </Suspense>
-      <CountdownTimer />
+      <Suspense fallback={<div className="min-h-[50px]" />}>
+        <CountdownTimer />
+      </Suspense>
       <Suspense fallback={<div className="min-h-[200px]" />}>
         <ProductOptions onSelectProduct={setSelectedProduct} />
       </Suspense>
@@ -48,7 +54,9 @@ const Index = () => {
         <FAQSection />
         <OrderForm selectedProduct={selectedProduct} />
       </Suspense>
-      <Footer />
+      <Suspense fallback={<div className="min-h-[100px]" />}>
+        <Footer />
+      </Suspense>
       <StickyCTA />
     </main>
   );
