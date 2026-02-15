@@ -5,32 +5,32 @@ import FadeSection from "./FadeSection";
 
 // Male avatars
 const MALE_AVATARS = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
 ];
 
 // Female avatars
 const FEMALE_AVATARS = [
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=32&h=32&fit=crop&crop=face&fm=webp&q=75",
 ];
 
 // Popup male avatars (different from review set)
 const POPUP_MALE_AVATARS = [
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
 ];
 
 // Popup female avatars (different from review set)
 const POPUP_FEMALE_AVATARS = [
-  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
+  "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=40&h=40&fit=crop&crop=face&fm=webp&q=75",
 ];
 
 // Bengali female name keywords
@@ -128,12 +128,14 @@ const Testimonials = () => {
         {/* Recent order popup */}
          {recentOrder && (
             <div className="fixed bottom-20 left-4 z-50 bg-card border border-border rounded-xl shadow-xl p-3 flex items-center gap-3 animate-fade-in max-w-[280px]">
-             <img
-               src={recentOrder.avatar}
-               alt=""
-               className="w-10 h-10 rounded-full object-cover shrink-0"
-               loading="lazy"
-             />
+              <img
+                src={recentOrder.avatar}
+                alt=""
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover shrink-0"
+                loading="lazy"
+              />
              <div className="text-xs">
                <p className="font-semibold">{recentOrder.name} ({recentOrder.district})</p>
                <p className="text-muted-foreground">এইমাত্র অর্ডার করেছেন!</p>
@@ -189,11 +191,13 @@ const Testimonials = () => {
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
                      <img
-                       src={getReviewAvatar(t.name, i)}
-                       alt={t.name}
-                       className="w-8 h-8 rounded-full object-cover"
-                       loading="lazy"
-                     />
+                        src={getReviewAvatar(t.name, i)}
+                        alt={t.name}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                        loading="lazy"
+                      />
                      <div>
                        <p className="font-semibold text-xs">{t.name}</p>
                        <p className="text-[10px] text-muted-foreground">{t.district}</p>
