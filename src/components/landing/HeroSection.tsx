@@ -5,7 +5,7 @@ import { ArrowDown } from "lucide-react";
 import AnimatedBee from "./AnimatedBee";
 import FloatingPollen from "./FloatingPollen";
 import honeyJarHero from "@/assets/honey-jar-hero.png";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-small.webp";
 
 const HeroSection = () => {
   const scrollToOrder = () => {
@@ -43,7 +43,7 @@ const HeroSection = () => {
 
       {/* Logo + Brand at top-left corner */}
       <div className="absolute top-4 left-4 z-30 flex items-center gap-2.5">
-        <img src={logo} alt="Fresh Foods Logo" className="w-12 h-12 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
+        <img src={logo} alt="Fresh Foods Logo" width={48} height={48} className="w-12 h-12 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
         <span className="text-cream font-extrabold text-lg md:text-xl tracking-tight drop-shadow-lg" style={{ fontFamily: "'Noto Sans Bengali', sans-serif" }}>দেশি ফুডস</span>
       </div>
 
@@ -111,8 +111,11 @@ const HeroSection = () => {
                 <img
                   src={honeyJarHero}
                   alt="Fresh Foods - Natural Honey"
+                  width={288}
+                  height={384}
                   className="w-full h-full object-contain drop-shadow-2xl animate-fade-in"
                   loading="eager"
+                  fetchPriority="high"
                 />
               </div>
               {/* Discount badge */}
