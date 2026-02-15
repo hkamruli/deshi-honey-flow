@@ -19,20 +19,28 @@ export function useVisitorAnalytics() {
     if (tracked.current) return;
     tracked.current = true;
 
-    const sessionId = getSessionId();
-
-    supabase.functions.invoke("track-event", {
-      body: {
-        action: "track",
-        payload: {
-          session_id: sessionId,
-          event_type: "page_view",
-          page_url: window.location.pathname,
-          referrer_url: document.referrer || null,
-          user_agent: navigator.userAgent,
+    const doTrack = () => {
+      const sessionId = getSessionId();
+      supabase.functions.invoke("track-event", {
+        body: {
+          action: "track",
+          payload: {
+            session_id: sessionId,
+            event_type: "page_view",
+            page_url: window.location.pathname,
+            referrer_url: document.referrer || null,
+            user_agent: navigator.userAgent,
+          },
         },
-      },
-    }).catch(() => {});
+      }).catch(() => {});
+    };
+
+    // Defer analytics so it doesn't block TTI
+    if ("requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(doTrack, { timeout: 3000 });
+    } else {
+      setTimeout(doTrack, 2000);
+    }
   }, []);
 
   return { sessionId: getSessionId() };
@@ -68,8 +76,16 @@ export function useScrollTracking() {
         }
       }
     };
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+
+    // Defer scroll tracking registration to avoid blocking TTI
+    const timerId = setTimeout(() => {
+      window.addEventListener("scroll", handler, { passive: true });
+    }, 2000);
+
+    return () => {
+      clearTimeout(timerId);
+      window.removeEventListener("scroll", handler);
+    };
   }, []);
 }
 
